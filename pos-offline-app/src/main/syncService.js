@@ -62,9 +62,9 @@ const startAutoSync = () => {
       const cloudProds = await client.query("SELECT * FROM products");
       for (const cp of cloudProds.rows) {
         db.run(`INSERT OR REPLACE INTO products 
-          (barcode, name, brand, category, size, unit_type, sale_price, stock_quantity, is_synced) 
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`,
-          [cp.barcode, cp.name, cp.brand, cp.category, cp.size, cp.unit_type, cp.sale_price, cp.stock_quantity]
+          (barcode, name, brand, category, size, unit_type, sale_price, stock_quantity, created_at, is_synced) 
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+          [cp.barcode, cp.name, cp.brand, cp.category, cp.size, cp.unit_type, cp.sale_price, cp.stock_quantity, cp.created_at]
         );
       }
 

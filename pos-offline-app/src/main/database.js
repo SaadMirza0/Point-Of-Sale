@@ -19,7 +19,7 @@ const initDB = () => {
   sale_price REAL,
   stock_quantity INTEGER DEFAULT 0,
   is_synced INTEGER DEFAULT 0,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  created_at DATETIME
 )`);
 
     // 2. Sales
@@ -29,7 +29,7 @@ const initDB = () => {
   received REAL,
   change_amount REAL,
   method TEXT,
-  sale_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+  sale_date DATETIME,
   is_synced INTEGER DEFAULT 0
 )`);
 

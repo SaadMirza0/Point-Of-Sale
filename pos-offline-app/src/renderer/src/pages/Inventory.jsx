@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { validatePrice, validateStock } from '../utils/validation';
 
 const Inventory = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
-const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [stats, setStats] = useState({ totalValue: 0, lowStockCount: 0, soldToday: 0 });
 
   const barcodeRef = useRef(null);
   const nameRef = useRef(null);
@@ -26,76 +29,74 @@ const [searchTerm, setSearchTerm] = useState('');
     stock: 0
   });
 
-  // In Inventory.jsx and SellPage.jsx
-const loadProducts = async () => {
-  if (!window.posAPI) {
-    console.warn("Running in browser: Database access disabled.");
-    return;
-  }
-  try {
-    const data = await window.posAPI.getAllProducts();
-    setProducts(data || []);
-  } catch (err) {
-    console.error("Failed to load products:", err);
-  }
-};
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-useEffect(() => {
-  loadProducts();
-  barcodeRef.current?.focus();
+  const loadProducts = async () => {
+    if (!window.posAPI) return;
+    try {
+      const data = await window.posAPI.getAllProducts();
+      const dashboard = await window.posAPI.getDashboardStats();
+      
+      const productsData = data || [];
+      setProducts(productsData);
 
-  // Now 'removeListener' will be the function we defined above
-  const removeListener = window.posAPI.onDatabaseUpdated(() => {
-    console.log("Sync detected: Refreshing Inventory...");
-    loadProducts();
-  });
-
-  return () => {
-    if (typeof removeListener === 'function') {
-      removeListener();
+      // Calculate stats
+      const totalVal = productsData.reduce((acc, p) => acc + (p.sale_price * p.stock_quantity), 0);
+      const lowStock = productsData.filter(p => p.stock_quantity < 10).length;
+      
+      setStats({
+        totalValue: totalVal,
+        lowStockCount: lowStock,
+        soldToday: dashboard?.totalOrders || 0
+      });
+    } catch (err) {
+      console.error("Failed to load products:", err);
     }
   };
-}, []);
 
+  useEffect(() => {
+    loadProducts();
+    const removeListener = window.posAPI.onDatabaseUpdated(() => {
+      loadProducts();
+    });
+    return () => removeListener?.();
+  }, []);
 
-  const handleKeyDown = (e, nextFieldRef) => {
+  const handleKeyDown = (e, target) => {
     if (e.key === 'Enter') {
-      e.preventDefault();
-      if (nextFieldRef && nextFieldRef.current) {
-        nextFieldRef.current.focus();
+      if (target && target.current) {
+        e.preventDefault();
+        target.current.focus();
+      } else if (typeof target === 'function') {
+        e.preventDefault();
+        target(e);
       }
     }
   };
 
   const handleInputChange = (field, value) => {
-    if (field === 'price') {
-      value = validatePrice(value);
-    } else if (field === 'stock') {
-      value = validateStock(value);
-    }
+    if (field === 'price') value = validatePrice(value);
+    else if (field === 'stock') value = validateStock(value);
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSave = async (e) => {
     e.preventDefault();
     try {
-      if (!formData.barcode || !formData.name || formData.price === '' || formData.stock === '') {
+      if (!formData.barcode || !formData.name) {
         alert("Please fill in all required fields");
         return;
       }
 
-      let result;
-      if (isEditing) {
-        result = await window.posAPI.updateProduct(formData);
-      } else {
-        result = await window.posAPI.addProduct(formData);
-      }
+      const result = isEditing 
+        ? await window.posAPI.updateProduct(formData)
+        : await window.posAPI.addProduct(formData);
 
       if (result.success) {
         setFormData({ barcode: '', name: '', brand: '', category: '', size: '', unit: '', price: 0, stock: 0 });
         setIsEditing(false);
-        await loadProducts();
-        barcodeRef.current?.focus();
+        setIsModalOpen(false);
+        loadProducts();
       }
     } catch (error) {
       alert("Error: " + error.message);
@@ -114,238 +115,365 @@ useEffect(() => {
       price: product.sale_price,
       stock: product.stock_quantity
     });
-    window.scrollTo(0, 0);
+    setIsModalOpen(true);
   };
 
   const handleDeleteClick = async (barcode) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       const result = await window.posAPI.deleteProduct(barcode);
-      if (result.success) await loadProducts();
+      if (result.success) loadProducts();
     }
   };
-const filteredProducts = products.filter(p => 
-  p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-  p.barcode.includes(searchTerm) ||
-  (p.brand && p.brand.toLowerCase().includes(searchTerm.toLowerCase()))
-);
+
+  const filteredProducts = products.filter(p =>
+    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.barcode.includes(searchTerm) ||
+    (p.brand && p.brand.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
   return (
-    <div className="p-8 bg-white min-h-screen text-black font-sans">
-      <h1 className="text-2xl font-bold border-b-2 border-black pb-2 mb-6">Inventory Management</h1>
-
-      <form onSubmit={handleSave} className="mb-10 border border-black p-6 bg-gray-50 shadow-md">
-        <h2 className="text-lg font-bold mb-4 uppercase tracking-wider">Add New Product</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="flex flex-col">
-            <label className="text-xs font-bold uppercase mb-1">Barcode (Scan Now)</label>
-            <input
-              ref={barcodeRef}
+    <main className="min-h-screen bg-surface flex flex-col">
+      {/* TopAppBar */}
+      <header className="flex justify-between items-center h-16 px-8 w-full sticky top-0 bg-white border-b border-outline-variant z-30 antialiased shadow-none">
+        <div className="flex items-center gap-4 flex-1">
+          <div className="relative max-w-md w-full group">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary-container">search</span>
+            <input 
+              className="w-full pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-lg focus:ring-2 focus:ring-primary-container text-body-md transition-all" 
+              placeholder="Search by Barcode or Name..." 
               type="text"
-              required
-              className="border border-black p-2 outline-none focus:bg-yellow-50"
-              onKeyDown={(e) => handleKeyDown(e, nameRef)}
-              value={formData.barcode}
-              onChange={(e) => handleInputChange('barcode', e.target.value)}
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="text-xs font-bold uppercase mb-1">Product Name</label>
-            <input
-              ref={nameRef}
-              type="text"
-              required
-              className="border border-black p-2 outline-none focus:bg-blue-50"
-              onKeyDown={(e) => handleKeyDown(e, brandRef)}
-              value={formData.name}
-              onChange={(e) => handleInputChange('name', e.target.value)}
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="text-xs font-bold uppercase mb-1">Brand</label>
-            <input
-              ref={brandRef}
-              type="text"
-              className="border border-black p-2 outline-none focus:bg-blue-50"
-              onKeyDown={(e) => handleKeyDown(e, categoryRef)}
-              value={formData.brand}
-              onChange={(e) => handleInputChange('brand', e.target.value)}
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="text-xs font-bold uppercase mb-1">Category</label>
-            <input
-              ref={categoryRef}
-              type="text"
-              className="border border-black p-2 outline-none focus:bg-blue-50"
-              onKeyDown={(e) => handleKeyDown(e, sizeRef)}
-              value={formData.category}
-              onChange={(e) => handleInputChange('category', e.target.value)}
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="text-xs font-bold uppercase mb-1">Size (e.g. 10KG)</label>
-            <input
-              ref={sizeRef}
-              type="text"
-              className="border border-black p-2 outline-none focus:bg-blue-50"
-              onKeyDown={(e) => handleKeyDown(e, unitRef)}
-              value={formData.size}
-              onChange={(e) => handleInputChange('size', e.target.value)}
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="text-xs font-bold uppercase mb-1">Unit (e.g. Bag)</label>
-            <input
-              ref={unitRef}
-              type="text"
-              className="border border-black p-2 outline-none focus:bg-blue-50"
-              onKeyDown={(e) => handleKeyDown(e, priceRef)}
-              value={formData.unit}
-              onChange={(e) => handleInputChange('unit', e.target.value)}
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="text-xs font-bold uppercase mb-1">Retail Price</label>
-            <input
-              ref={priceRef}
-              type="number"
-              required
-              min="0"
-              step="0.01"
-              className="border border-black p-2 outline-none focus:bg-blue-50"
-              onKeyDown={(e) => handleKeyDown(e, stockRef)}
-              value={formData.price}
-              onChange={(e) => handleInputChange('price', e.target.value)}
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="text-xs font-bold uppercase mb-1">Stock Quantity</label>
-            <input
-              ref={stockRef}
-              type="number"
-              required
-              min="0"
-              step="1"
-              className="border border-black p-2 outline-none focus:bg-blue-50"
-              onKeyDown={(e) => handleKeyDown(e, null)}
-              value={formData.stock}
-              onChange={(e) => handleInputChange('stock', e.target.value)}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 text-outline">
+            <span onClick={loadProducts} className="material-symbols-outlined cursor-pointer hover:text-primary-container transition-colors">sync</span>
+            <span className="material-symbols-outlined cursor-pointer hover:text-primary-container transition-colors">notifications</span>
+            <span className="material-symbols-outlined cursor-pointer hover:text-primary-container transition-colors">help</span>
+          </div>
+          <div className="h-8 w-[1px] bg-outline-variant"></div>
+          <button 
+            onClick={() => navigate('/sell')}
+            className="flex items-center gap-2 bg-primary-container text-white px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition-all active:scale-95"
+          >
+            <span className="material-symbols-outlined text-[20px]">add</span>
+            <span>New Sale</span>
+          </button>
+        </div>
+      </header>
 
-        <button type="submit" className="mt-6 bg-black text-white px-10 py-3 font-bold hover:bg-gray-800 transition-all uppercase text-sm active:scale-95">
-          Save to Inventory
-        </button>
-      </form>
+      <div className="flex-1 p-margin space-y-lg overflow-y-auto custom-scrollbar">
+        {/* Page Header */}
+        <div className="flex justify-between items-end mb-4">
+          <div>
+            <h1 className="text-headline-xl font-bold text-primary-container">Inventory Management</h1>
+            <p className="text-body-lg text-on-surface-variant">Manage your product catalog and stock levels.</p>
+          </div>
+          <div className="flex gap-sm">
+            <button className="flex items-center gap-2 border border-outline px-4 py-2 rounded-lg text-primary-container font-semibold hover:bg-white transition-colors">
+              <span className="material-symbols-outlined">upload_file</span>
+              <span>Upload Excel</span>
+            </button>
+            <button 
+              onClick={() => {
+                setIsEditing(false);
+                setFormData({ barcode: '', name: '', brand: '', category: '', size: '', unit: '', price: 0, stock: 0 });
+                setIsModalOpen(true);
+              }}
+              className="flex items-center gap-2 bg-primary-container text-white px-4 py-2 rounded-lg font-semibold hover:opacity-95 transition-colors shadow-lg shadow-primary-container/20"
+            >
+              <span className="material-symbols-outlined">add_circle</span>
+              <span>Add Product</span>
+            </button>
+          </div>
+        </div>
 
+        {/* Inventory Stats */}
+        <div className="grid grid-cols-3 gap-gutter mb-gutter">
+          <div className="bg-white p-6 rounded-xl border border-outline-variant shadow-sm flex flex-col justify-between h-32">
+            <div>
+              <p className="text-label-sm text-on-surface-variant uppercase tracking-widest">Total Value</p>
+              <h3 className="text-headline-xl font-bold text-primary mt-1">Rs. {stats.totalValue.toLocaleString()}</h3>
+            </div>
+            <div className="flex items-center gap-1 text-secondary font-bold text-xs uppercase tracking-tighter">
+              <span className="material-symbols-outlined text-[16px]">trending_up</span>
+              <span>Real-time estimate</span>
+            </div>
+          </div>
+          <div className="bg-white p-6 rounded-xl border border-outline-variant shadow-sm flex flex-col justify-between h-32">
+            <div>
+              <p className="text-label-sm text-on-surface-variant uppercase tracking-widest">Low Stock</p>
+              <h3 className={`text-headline-xl font-bold mt-1 ${stats.lowStockCount > 0 ? 'text-error' : 'text-secondary'}`}>
+                {stats.lowStockCount} Items
+              </h3>
+            </div>
+            <div className="flex items-center gap-1 text-on-surface-variant text-xs uppercase tracking-tighter">
+              <span className="material-symbols-outlined text-[16px]">warning</span>
+              <span>Needs attention</span>
+            </div>
+          </div>
+          <div className="bg-white p-6 rounded-xl border border-outline-variant shadow-sm flex flex-col justify-between h-32">
+            <div>
+              <p className="text-label-sm text-on-surface-variant uppercase tracking-widest">Items Sold</p>
+              <h3 className="text-headline-xl font-bold text-primary-container mt-1">{stats.soldToday} Today</h3>
+            </div>
+            <div className="flex items-center gap-1 text-secondary font-bold text-xs uppercase tracking-tighter">
+              <span className="material-symbols-outlined text-[16px]">check_circle</span>
+              <span>Sync complete</span>
+            </div>
+          </div>
+        </div>
 
-{/* ---SEARCH BAR--- */}
-<div className="mb-4">
-  <label className="text-xs font-black uppercase text-gray-500 block mb-1">Quick Search</label>
-  <div className="relative">
-    <input 
-      type="text" 
-      placeholder="Search by Name, Barcode, or Brand..." 
-      className="w-full border-2 border-black p-3 pl-10 outline-none focus:ring-2 focus:ring-blue-500"
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-    />
-    <span className="absolute left-3 top-3.5 opacity-50">🔍</span>
-    {searchTerm && (
-      <button 
-        onClick={() => setSearchTerm('')}
-        className="absolute right-3 top-3.5 text-xs font-bold bg-gray-200 px-2 rounded"
-      >
-        CLEAR
-      </button>
-    )}
-  </div>
-</div>
-
-      {/* --- PRODUCT LIST TABLE --- */}
-      <div className="overflow-hidden border border-black shadow-sm">
-        <h2 className="text-lg font-bold p-4 bg-gray-100 uppercase tracking-wider border-b border-black flex justify-between items-center">
-          <span>Stored Products</span>
-          <span className="text-xs font-normal bg-black text-white px-2 py-1">Total: {filteredProducts.length}</span>
-        </h2>
-        <table className="w-full border-collapse text-sm">
-          <thead>
-            <tr className="bg-black text-white text-left uppercase">
-              <th className="p-3 border-r border-gray-800">Barcode</th>
-              <th className="p-3 border-r border-gray-800">Product Details</th>
-              <th className="p-3 border-r border-gray-800">Category</th>
-              <th className="p-3 border-r border-gray-800">Price</th>
-              <th className="p-3 border-r border-gray-800">Stock</th>
-              <th className="p-3 text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredProducts.length === 0 ? (
-              <tr>
-                <td colSpan="6" className="p-8 text-center text-gray-500 italic">
-                  No products in database. Scan your first item to start.
-                </td>
-              </tr>
-            ) : (
-              filteredProducts.map((p) => (
-                <tr key={p.barcode} className="border-b border-gray-200 hover:bg-yellow-50 transition-colors">
-                  <td className="p-3 font-mono text-xs">{p.barcode}</td>
-
-                  <td className="p-3">
-                    <div className="flex flex-col">
-                      <span className="font-bold text-base uppercase">{p.name}</span>
-                      <span className="text-[10px] text-gray-500 font-bold uppercase">
-                        {p.brand} | {p.size}
-                      </span>
-                    </div>
-                  </td>
-
-                  <td className="p-3 uppercase text-gray-600 font-semibold">{p.category}</td>
-
-                  <td className="p-3 font-black text-gray-900">Rs. {p.sale_price}</td>
-
-                  <td className="p-3">
-                    <div className="flex flex-col">
-                      <span className={`px-2 py-1 rounded text-center font-bold text-xs ${p.stock_quantity < 10 ? 'bg-red-600 text-white' : 'bg-green-600 text-white'}`}>
-                        {p.stock_quantity}
-                      </span>
-                      <span className="text-[10px] text-center text-gray-500 mt-1 uppercase font-bold">{p.unit_type}</span>
-                    </div>
-                  </td>
-
-                  <td className="p-3 text-center">
-                    <div className="flex justify-center gap-2">
-                      <button
-                        onClick={() => handleEditClick(p)}
-                        className="bg-black text-white px-3 py-1 text-[10px] font-black uppercase hover:bg-blue-700 transition-colors"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteClick(p.barcode)}
-                        className="bg-white border-2 border-black text-black px-3 py-1 text-[10px] font-black uppercase hover:bg-red-600 hover:text-white hover:border-red-600 transition-all"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
+        {/* Full Width Product Table */}
+        <div className="bg-white rounded-xl border border-outline-variant overflow-hidden shadow-md">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse table-fixed">
+              <thead>
+                <tr className="bg-surface-container-low border-b border-outline-variant">
+                  <th className="w-[25%] px-6 py-4 text-label-sm text-on-surface-variant uppercase tracking-wider">Product Name & Barcode</th>
+                  <th className="w-[15%] px-6 py-4 text-label-sm text-on-surface-variant uppercase tracking-wider">Brand</th>
+                  <th className="w-[15%] px-6 py-4 text-label-sm text-on-surface-variant uppercase tracking-wider">Category</th>
+                  <th className="w-[12%] px-6 py-4 text-label-sm text-on-surface-variant uppercase tracking-wider text-right">Size/Unit</th>
+                  <th className="w-[12%] px-6 py-4 text-label-sm text-on-surface-variant uppercase tracking-wider text-right">Price</th>
+                  <th className="w-[10%] px-6 py-4 text-label-sm text-on-surface-variant uppercase tracking-wider text-right">Stock</th>
+                  <th className="w-[11%] px-6 py-4 text-label-sm text-on-surface-variant uppercase tracking-wider text-center">Actions</th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              </thead>
+              <tbody className="divide-y divide-surface-variant">
+                {filteredProducts.length === 0 ? (
+                  <tr>
+                    <td colSpan="7" className="px-6 py-12 text-center text-on-surface-variant italic">No products found. Click "Add Product" to start.</td>
+                  </tr>
+                ) : (
+                  filteredProducts.map(p => (
+                    <tr key={p.barcode} className="hover:bg-surface-container-low transition-colors h-14">
+                      <td className="px-6 py-3">
+                        <p className="font-bold text-primary-container truncate" title={p.name}>{p.name}</p>
+                        <p className="text-[11px] text-outline font-data-mono tracking-tighter">{p.barcode}</p>
+                      </td>
+                      <td className="px-6 py-3 text-body-md text-on-surface truncate">{p.brand || '---'}</td>
+                      <td className="px-6 py-3">
+                        <span className="px-2 py-1 rounded bg-secondary-container/20 text-secondary text-[10px] font-black uppercase">
+                          {p.category || 'N/A'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-3 text-right text-data-mono">{p.size} {p.unit_type}</td>
+                      <td className="px-6 py-3 text-right text-data-mono text-primary-container font-black">Rs. {p.sale_price.toLocaleString()}</td>
+                      <td className="px-6 py-3 text-right">
+                        <div className="flex flex-col items-end">
+                          <span className={`font-data-mono font-bold ${p.stock_quantity < 10 ? 'text-error' : 'text-on-surface'}`}>
+                            {p.stock_quantity}
+                          </span>
+                          <div className="w-12 h-1 bg-surface-container rounded-full mt-1 overflow-hidden">
+                            <div 
+                              className={`h-full transition-all duration-1000 ${p.stock_quantity < 10 ? 'bg-error' : 'bg-secondary'}`} 
+                              style={{ width: `${Math.min(100, (p.stock_quantity / 100) * 100)}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-3">
+                        <div className="flex justify-center gap-1">
+                          <button 
+                            onClick={() => handleEditClick(p)}
+                            className="p-2 hover:bg-primary-container hover:text-white rounded-lg text-primary-container transition-all"
+                            title="Edit"
+                          >
+                            <span className="material-symbols-outlined text-[20px]">edit</span>
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteClick(p.barcode)}
+                            className="p-2 hover:bg-error hover:text-white rounded-lg text-error transition-all"
+                            title="Delete"
+                          >
+                            <span className="material-symbols-outlined text-[20px]">delete</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+          <div className="p-4 bg-surface-container-low flex items-center justify-between border-t border-outline-variant">
+            <span className="text-sm text-on-surface-variant font-medium">Total: {products.length} Products</span>
+            <div className="flex items-center gap-2">
+              <button className="p-1.5 rounded-lg border border-outline-variant hover:bg-white text-outline disabled:opacity-30" disabled>
+                <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+              </button>
+              <span className="text-sm font-bold px-3">Page 1</span>
+              <button className="p-1.5 rounded-lg border border-outline-variant hover:bg-white text-outline disabled:opacity-30" disabled>
+                <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
-    </div>
+      {/* Quick Add Modal Overlay */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-primary/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden border border-outline-variant animate-in zoom-in-95 duration-200">
+            <div className="bg-primary-container p-6 text-white flex justify-between items-center">
+              <div>
+                <h2 className="text-headline-md font-bold">{isEditing ? 'Edit Product' : 'Add New Product'}</h2>
+                <p className="text-xs opacity-70 uppercase tracking-widest mt-1">Product Details Entry</p>
+              </div>
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="hover:bg-white/10 p-2 rounded-full transition-colors"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <form onSubmit={handleSave} className="p-8 space-y-5">
+              <div className="grid grid-cols-1 gap-5">
+                <div className="space-y-1">
+                  <label className="text-label-sm text-on-surface-variant block uppercase tracking-tight font-bold">Barcode (Primary Key)</label>
+                  <div className="relative">
+                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">barcode_scanner</span>
+                    <input 
+                      ref={barcodeRef}
+                      required
+                      autoFocus
+                      className="w-full border-outline-variant rounded-xl focus:ring-2 focus:ring-primary-container text-body-md py-3 pl-11 pr-4 border outline-none transition-all" 
+                      placeholder="Scan product barcode..." 
+                      type="text"
+                      value={formData.barcode}
+                      onChange={(e) => handleInputChange('barcode', e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(e, nameRef)}
+                      readOnly={isEditing}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-label-sm text-on-surface-variant block uppercase tracking-tight font-bold">Product Name</label>
+                  <input 
+                    ref={nameRef}
+                    required
+                    className="w-full border-outline-variant rounded-xl focus:ring-2 focus:ring-primary-container text-body-md py-3 px-4 border outline-none transition-all" 
+                    placeholder="Enter full product name..."
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(e, brandRef)}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-5">
+                  <div className="space-y-1">
+                    <label className="text-label-sm text-on-surface-variant block uppercase tracking-tight font-bold">Brand</label>
+                    <input 
+                      ref={brandRef}
+                      className="w-full border-outline-variant rounded-xl focus:ring-2 focus:ring-primary-container text-body-md py-3 px-4 border outline-none" 
+                      placeholder="e.g. Nestle"
+                      type="text"
+                      value={formData.brand}
+                      onChange={(e) => handleInputChange('brand', e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(e, categoryRef)}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-label-sm text-on-surface-variant block uppercase tracking-tight font-bold">Category</label>
+                    <input 
+                      ref={categoryRef}
+                      className="w-full border-outline-variant rounded-xl focus:ring-2 focus:ring-primary-container text-body-md py-3 px-4 border outline-none" 
+                      placeholder="e.g. Beverages"
+                      type="text"
+                      value={formData.category}
+                      onChange={(e) => handleInputChange('category', e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(e, sizeRef)}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-5">
+                  <div className="space-y-1">
+                    <label className="text-label-sm text-on-surface-variant block uppercase tracking-tight font-bold">Size</label>
+                    <input 
+                      ref={sizeRef}
+                      className="w-full border-outline-variant rounded-xl focus:ring-2 focus:ring-primary-container text-body-md py-3 px-4 border outline-none" 
+                      placeholder="e.g. 500"
+                      type="text"
+                      value={formData.size}
+                      onChange={(e) => handleInputChange('size', e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(e, unitRef)}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-label-sm text-on-surface-variant block uppercase tracking-tight font-bold">Unit Type</label>
+                    <input 
+                      ref={unitRef}
+                      className="w-full border-outline-variant rounded-xl focus:ring-2 focus:ring-primary-container text-body-md py-3 px-4 border outline-none" 
+                      placeholder="e.g. ml, kg, pcs"
+                      type="text"
+                      value={formData.unit}
+                      onChange={(e) => handleInputChange('unit', e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(e, priceRef)}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-5">
+                  <div className="space-y-1">
+                    <label className="text-label-sm text-on-surface-variant block uppercase tracking-tight font-bold">Sale Price (PKR)</label>
+                    <input 
+                      ref={priceRef}
+                      required
+                      className="w-full border-outline-variant rounded-xl focus:ring-2 focus:ring-primary-container text-body-md py-3 px-4 border outline-none font-bold text-primary-container" 
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={formData.price}
+                      onChange={(e) => handleInputChange('price', e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(e, stockRef)}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-label-sm text-on-surface-variant block uppercase tracking-tight font-bold">Current Stock</label>
+                    <input 
+                      ref={stockRef}
+                      required
+                      className="w-full border-outline-variant rounded-xl focus:ring-2 focus:ring-primary-container text-body-md py-3 px-4 border outline-none font-bold" 
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={formData.stock}
+                      onChange={(e) => handleInputChange('stock', e.target.value)}
+                      onKeyDown={(e) => handleKeyDown(e, handleSave)}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <button 
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="flex-1 px-6 py-3.5 rounded-xl border border-outline text-primary-container font-bold hover:bg-surface-container transition-all"
+                >
+                  Discard
+                </button>
+                <button 
+                  type="submit" 
+                  className="flex-[2] px-6 py-3.5 bg-primary-container text-white rounded-xl font-bold hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-primary-container/20"
+                >
+                  <span className="material-symbols-outlined">{isEditing ? 'published_with_changes' : 'save_as'}</span>
+                  <span>{isEditing ? 'Update Product' : 'Save Product'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </main>
   );
 };
 
 export default Inventory;
+
