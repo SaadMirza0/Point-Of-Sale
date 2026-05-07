@@ -1,11 +1,8 @@
 const { ipcMain } = require('electron');
 const { db } = require('./database');
-
-
-
+const { printReceipt } = require('./printer');
 const { Client } = require('pg');
 
-// Use your Neon Connection String here
 const neonConfig = {
   connectionString: "postgresql://neondb_owner:npg_CR35wFemruYs@ep-rapid-surf-aod97wzm-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
 };
@@ -16,10 +13,20 @@ async function connectNeon() {
   return client;
 }
 
-
-
-
 const setupHandlers = () => {
+
+  // --- PRINTER MANAGEMENT ---
+  ipcMain.handle('get-printers', async (event) => {
+    return event.sender.getPrinters();
+  });
+
+  ipcMain.on('print-receipt', (event, data) => {
+    try {
+      printReceipt(data);
+    } catch (error) {
+      console.error("Printer Error:", error);
+    }
+  });
 
   // --- PRODUCT MANAGEMENT ---
 

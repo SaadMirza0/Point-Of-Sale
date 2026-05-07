@@ -6,13 +6,14 @@ const SellPage = () => {
   const [discount, setDiscount] = useState(0);
   const [received, setReceived] = useState(0);
   const [taxRate, setTaxRate] = useState(0);
+  const [currencySymbol, setCurrencySymbol] = useState('Rs.');
   const [isProcessing, setIsProcessing] = useState(false);
   const scanRef = useRef(null);
 
   useEffect(() => {
     const focusScanner = () => scanRef.current?.focus();
     focusScanner();
-    loadTaxRate();
+    loadSettings();
 
     // Global click listener to refocus scanner, common in POS systems
     const handleGlobalClick = (e) => {
@@ -24,10 +25,12 @@ const SellPage = () => {
     return () => window.removeEventListener('mousedown', handleGlobalClick);
   }, []);
 
-  const loadTaxRate = async () => {
+  const loadSettings = async () => {
     try {
       const rate = await window.posAPI.getSetting('tax_rate');
+      const symbol = await window.posAPI.getSetting('currency_symbol');
       setTaxRate(parseFloat(rate) || 0);
+      setCurrencySymbol(symbol || 'Rs.');
     } catch (e) {
       console.error("Setting load failed");
     }
@@ -119,7 +122,30 @@ const SellPage = () => {
     try {
       const result = await window.posAPI.saveSale(checkoutData);
       if (result?.success) {
-        await window.posAPI.printReceipt({ ...checkoutData, items: cart });
+        // Ask for receipt confirmation
+        const shouldPrint = window.confirm("Transaction successful! Do you want to print the receipt?");
+        
+        if (shouldPrint) {
+          // Fetch Store Details from Settings for a professional receipt
+          const storeName = await window.posAPI.getSetting('store_name');
+          const storeAddress = await window.posAPI.getSetting('store_address');
+          const storeContact = await window.posAPI.getSetting('store_contact');
+          const currencySymbol = await window.posAPI.getSetting('currency_symbol');
+          const selectedPrinter = await window.posAPI.getSetting('selected_printer');
+
+          window.posAPI.printReceipt({ 
+            ...checkoutData, 
+            items: cart,
+            taxAmount,
+            discount,
+            storeName,
+            storeAddress,
+            storeContact,
+            currencySymbol,
+            selectedPrinter
+          });
+        }
+        
         setCart([]);
         setReceived(0);
         setDiscount(0);
@@ -266,9 +292,9 @@ const SellPage = () => {
                           </div>
                         </td>
                         <td className="px-4 py-4 text-right">
-                          <div className="text-[11px] text-outline font-bold">Rs. {item.sale_price.toLocaleString()}</div>
+                          <div className="text-[11px] text-outline font-bold">{currencySymbol} {item.sale_price.toLocaleString()}</div>
                           <div className="text-body-md font-black text-primary-container font-data-mono">
-                            Rs. {(item.sale_price * item.qty).toLocaleString()}
+                            {currencySymbol} {(item.sale_price * item.qty).toLocaleString()}
                           </div>
                         </td>
                         <td className="px-6 py-4 text-right">
@@ -307,20 +333,20 @@ const SellPage = () => {
             <div className="space-y-4 mb-8">
               <div className="flex justify-between items-center">
                 <span className="text-body-md font-bold text-on-surface-variant">Subtotal</span>
-                <span className="text-body-md font-black text-primary-container font-data-mono">Rs. {subtotal.toLocaleString()}</span>
+                <span className="text-body-md font-black text-primary-container font-data-mono">{currencySymbol} {subtotal.toLocaleString()}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-body-md font-bold text-on-surface-variant flex items-center gap-2">
                   Tax <span className="text-[10px] bg-surface-container px-2 py-0.5 rounded text-outline">{taxRate}%</span>
                 </span>
-                <span className="text-body-md font-black text-primary-container font-data-mono">+Rs. {taxAmount.toLocaleString()}</span>
+                <span className="text-body-md font-black text-primary-container font-data-mono">+{currencySymbol} {taxAmount.toLocaleString()}</span>
               </div>
               
               {/* Discount Section */}
               <div className="pt-4 border-t border-outline-variant/30">
                 <label className="block text-[10px] text-outline font-black uppercase tracking-widest mb-3">Discount Adjustments</label>
                 <div className="relative group">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-outline font-black text-xs">Rs.</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-outline font-black text-xs">{currencySymbol}</span>
                   <input
                     type="number"
                     value={discount}
@@ -340,7 +366,7 @@ const SellPage = () => {
               <div className="relative z-10">
                 <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60 mb-2">Net Amount Payable</p>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-headline-md opacity-70">Rs.</span>
+                  <span className="text-headline-md opacity-70">{currencySymbol}</span>
                   <span className="text-[48px] font-black leading-none tracking-tight">
                     {grandTotal.toLocaleString()}
                   </span>
@@ -356,7 +382,7 @@ const SellPage = () => {
                   <span className="material-symbols-outlined text-secondary text-lg">input_circle</span>
                 </div>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary font-black text-lg">Rs.</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-secondary font-black text-lg">{currencySymbol}</span>
                   <input
                     type="number"
                     value={received}
@@ -371,7 +397,7 @@ const SellPage = () => {
                 <div>
                   <p className="text-[10px] font-black text-outline uppercase tracking-widest mb-1">Balance Return</p>
                   <p className="text-headline-xl font-black text-primary-container font-data-mono">
-                    Rs. {change.toLocaleString()}
+                    {currencySymbol} {change.toLocaleString()}
                   </p>
                 </div>
                 <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-primary-container shadow-sm">

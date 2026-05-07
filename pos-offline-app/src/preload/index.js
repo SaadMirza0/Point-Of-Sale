@@ -21,6 +21,7 @@ updateProduct: (productData) => ipcRenderer.invoke('update-product', productData
 
   //  SETTINGS & HARDWARE 
   getSetting: (key) => ipcRenderer.invoke('get-setting', key),
+  getPrinters: () => ipcRenderer.invoke('get-printers'),
   printReceipt: (data) => ipcRenderer.send('print-receipt',data ),
 saveSetting: (key, value) => ipcRenderer.invoke('save-setting', { key, value }),
 
