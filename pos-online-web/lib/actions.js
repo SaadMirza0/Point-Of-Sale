@@ -130,12 +130,22 @@ export async function getDashboardData() {
     FROM products
   `;
 
-  // 3. Get Recent Activity
+// 3. Get Low Stock Products (Top 3 for dashboard)
+  const lowStock = await sql`
+    SELECT name, barcode, stock_quantity 
+    FROM products 
+    WHERE stock_quantity < 10 
+    ORDER BY stock_quantity ASC 
+    LIMIT 3
+  `;
+
+  // 4. Get Recent Activity
   const recentSales = await sql`SELECT * FROM sales ORDER BY sale_date DESC LIMIT 5`;
 
   return { 
     stats: stats[0], 
     products: productSync[0],
+    lowStock,
     recentSales 
   };
 }
