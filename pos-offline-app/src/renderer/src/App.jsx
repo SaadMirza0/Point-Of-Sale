@@ -16,12 +16,7 @@ const App = () => {
         
         {/* Sidebar */}
         <div className="w-64 bg-primary text-white flex flex-col border-r border-primary-container shadow-xl z-40">
-          <div className="p-8 text-2xl font-black border-b border-primary-container flex items-center gap-2">
-            <span className="material-symbols-outlined text-secondary text-3xl">precision_manufacturing</span>
-            <div className="leading-tight">
-              RETAIL<br/><span className="text-secondary">PRECISION</span>
-            </div>
-          </div>
+
           <nav className="flex-1 p-6 space-y-4 font-public-sans">
             <Link to="/" className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary-container transition-all group">
               <span className="material-symbols-outlined text-outline-variant group-hover:text-white">dashboard</span>
@@ -29,7 +24,7 @@ const App = () => {
             </Link>
             <Link to="/sell" className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary-container transition-all group">
               <span className="material-symbols-outlined text-outline-variant group-hover:text-white">shopping_cart</span>
-              <span className="font-semibold tracking-wide">Sell Page</span>
+              <span className="font-semibold tracking-wide">POS (selling page)</span>
             </Link>
             <Link to="/inventory" className="flex items-center gap-3 p-3 rounded-lg bg-primary-container transition-all group">
               <span className="material-symbols-outlined text-white">inventory_2</span>

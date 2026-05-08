@@ -1,8 +1,8 @@
 {
-  "name": "point-of-sale",
-  "productName": "point-of-sale",
+  "name": "S&M-POS",
+  "productName": "S&M POS",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "S&M POS application",
   "main": "src/main/index.js",
   "private": true,
   "scripts": {

@@ -11,14 +11,14 @@ const SellPage = () => {
   const scanRef = useRef(null);
 
   useEffect(() => {
-    const focusScanner = () => scanRef.current?.focus();
-    focusScanner();
+    // const focusScanner = () => scanRef.current?.focus();
+    // focusScanner();
     loadSettings();
 
     // Global click listener to refocus scanner, common in POS systems
     const handleGlobalClick = (e) => {
       if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'BUTTON') {
-        focusScanner();
+        // focusScanner();
       }
     };
     window.addEventListener('mousedown', handleGlobalClick);
@@ -163,39 +163,15 @@ const SellPage = () => {
   return (
     <main className={`flex flex-col h-screen bg-surface transition-all duration-500 ${isProcessing ? 'blur-sm pointer-events-none' : ''}`}>
       
-      {/* Top Bar / Header */}
-      <header className="h-16 bg-white border-b border-outline-variant flex items-center justify-between px-6 shadow-sm z-30">
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 bg-primary-container rounded-xl flex items-center justify-center shadow-lg shadow-primary-container/20">
-            <span className="material-symbols-outlined text-white">point_of_sale</span>
-          </div>
-          <div>
-            <h1 className="text-body-lg font-black text-primary-container uppercase tracking-tighter leading-none">Antigravity POS</h1>
-            <p className="text-[10px] text-outline font-bold uppercase tracking-widest">Active Station • Terminal 01</p>
-          </div>
-        </div>
+ 
 
-        {/* Real-time Scanner Indicator */}
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2 px-4 py-2 bg-secondary-container/10 border border-secondary-container/30 rounded-full">
-            <div className="w-2 h-2 bg-secondary rounded-full animate-pulse"></div>
-            <span className="text-[11px] font-black text-secondary uppercase tracking-widest">Scanner Ready</span>
-          </div>
-          <div className="h-8 w-[1px] bg-outline-variant"></div>
-          <div className="text-right">
-            <p className="text-[10px] text-outline font-bold uppercase tracking-widest">Current Session</p>
-            <p className="text-body-md font-black text-primary-container">{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-          </div>
-        </div>
-      </header>
 
-      {/* Main Responsive Grid */}
       <div className="flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-12 gap-0">
         
-        {/* Left Section: Active Transaction (8 Columns) */}
+      
         <section className="lg:col-span-8 flex flex-col border-r border-outline-variant bg-surface-container-lowest">
           
-          {/* Enhanced Scanning Zone */}
+   
           <div className="p-6 bg-white border-b border-outline-variant">
             <div className="relative group">
               <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-primary-container text-3xl font-light group-focus-within:scale-110 transition-transform">
@@ -431,24 +407,7 @@ const SellPage = () => {
         </aside>
       </div>
 
-      {/* Operational Footer - Fixed Bottom */}
-      <footer className="h-14 bg-inverse-surface flex items-center px-6 gap-6 z-30">
-        {[
-          { key: 'F4', label: 'SEARCH' },
-          { key: 'F5', label: 'CUSTOMER' },
-          { key: 'F6', label: 'SUSPEND' },
-          { key: 'F12', label: 'DRAWER' }
-        ].map(shortcut => (
-          <div key={shortcut.key} className="flex items-center gap-2 group cursor-pointer">
-            <kbd className="px-2 py-0.5 bg-white/10 text-white rounded text-[10px] font-black group-hover:bg-secondary transition-colors">{shortcut.key}</kbd>
-            <span className="text-[10px] text-white/60 font-black uppercase tracking-widest group-hover:text-white transition-colors">{shortcut.label}</span>
-          </div>
-        ))}
-        <div className="ml-auto flex items-center gap-3 text-white/40">
-          <span className="material-symbols-outlined text-sm">wifi</span>
-          <span className="text-[10px] font-black uppercase tracking-widest">System Online</span>
-        </div>
-      </footer>
+  
 
       {/* Internal Scrollbar Styling */}
       <style dangerouslySetInnerHTML={{ __html: `

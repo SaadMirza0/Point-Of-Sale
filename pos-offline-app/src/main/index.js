@@ -5,16 +5,20 @@ const { setupHandlers } = require('./ipcHandler');
 const { startAutoSync } = require('./syncService');
 
 function createWindow() {
-  const mainWindow = new BrowserWindow({
+const path = require('path'); // Make sure this is at the top of your file
+
+const mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+  
+    icon: path.join(process.cwd(), 'officeicons.ico'), 
     webPreferences: {
-      // Points to the built preload file
       preload: path.join(__dirname, '../preload/index.js'),
       contextIsolation: true,
       nodeIntegration: false,
     },
-  });
+});
+
 
   mainWindow.webContents.openDevTools();
 mainWindow.webContents.send('database-updated');

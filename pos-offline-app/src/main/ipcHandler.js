@@ -15,7 +15,7 @@ async function connectNeon() {
 
 const setupHandlers = () => {
 
-  // --- PRINTER MANAGEMENT ---
+  //  PRINTER MANAGEMENT 
   ipcMain.handle('get-printers', async (event) => {
     return event.sender.getPrinters();
   });

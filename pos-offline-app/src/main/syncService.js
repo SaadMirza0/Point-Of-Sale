@@ -80,7 +80,7 @@ const startAutoSync = () => {
     } catch (error) {
       console.log("☁️ Sync Paused: Connection Issue.");
     }
-  }, 60000);
+  }, 30000); // every 30 seconds
 };
 
 module.exports = { startAutoSync };

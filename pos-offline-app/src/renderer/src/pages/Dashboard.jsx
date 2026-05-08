@@ -79,42 +79,7 @@ const Dashboard = () => {
 
   return (
     <main className="min-h-screen bg-surface">
-      <header className="flex justify-between items-center h-16 px-8 w-full sticky top-0 bg-white border-b border-outline-variant z-30 shadow-none">
-        <div className="flex items-center flex-1">
-          <div className="relative w-96">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
-            <input
-              className="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-lg text-body-md focus:outline-none focus:border-primary-container transition-colors"
-              placeholder="Search orders, items, or customers..."
-              type="text"
-            />
-          </div>
-        </div>
-        <div className="flex items-center space-x-6">
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={loadData}
-              className="material-symbols-outlined text-outline hover:text-primary-container transition-colors"
-              title="Sync Data"
-            >
-              sync
-            </button>
-            <div className="relative">
-              <button className="material-symbols-outlined text-outline hover:text-primary-container transition-colors">notifications</button>
-              {pendingSync > 0 && (
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-error rounded-full"></span>
-              )}
-            </div>
-            <button className="material-symbols-outlined text-outline hover:text-primary-container transition-colors">help</button>
-          </div>
-          <button
-            onClick={() => navigate('/sell')}
-            className="bg-primary-container text-white px-6 py-2 rounded-lg font-bold text-sm hover:opacity-90 active:scale-95 transition-all shadow-sm shadow-primary-container/20"
-          >
-            New Sale
-          </button>
-        </div>
-      </header>
+ 
 
       {/* Dashboard Canvas */}
       <div className="p-8 max-w-[1600px] mx-auto">

@@ -148,11 +148,7 @@ const Inventory = () => {
           </div>
         </div>
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-4 text-outline">
-            <span onClick={loadProducts} className="material-symbols-outlined cursor-pointer hover:text-primary-container transition-colors">sync</span>
-            <span className="material-symbols-outlined cursor-pointer hover:text-primary-container transition-colors">notifications</span>
-            <span className="material-symbols-outlined cursor-pointer hover:text-primary-container transition-colors">help</span>
-          </div>
+
           <div className="h-8 w-[1px] bg-outline-variant"></div>
           <button 
             onClick={() => navigate('/sell')}
@@ -172,10 +168,7 @@ const Inventory = () => {
             <p className="text-body-lg text-on-surface-variant">Manage your product catalog and stock levels.</p>
           </div>
           <div className="flex gap-sm">
-            <button className="flex items-center gap-2 border border-outline px-4 py-2 rounded-lg text-primary-container font-semibold hover:bg-white transition-colors">
-              <span className="material-symbols-outlined">upload_file</span>
-              <span>Upload Excel</span>
-            </button>
+         
             <button 
               onClick={() => {
                 setIsEditing(false);

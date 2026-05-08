@@ -87,25 +87,12 @@ const Reports = () => {
         {/* Page Header & Stats */}
         <div className="flex justify-between items-end mb-8">
           <div>
-            <nav className="flex items-center gap-2 text-label-sm text-outline mb-2 font-label-sm uppercase tracking-widest">
-              <span className="cursor-pointer hover:text-primary transition-colors">RETAILOS</span>
-              <span className="material-symbols-outlined text-[12px]">chevron_right</span>
-              <span className="text-outline-variant">SALES HISTORY</span>
-            </nav>
+        
             <h1 className="text-headline-xl text-primary-container uppercase tracking-tight">Sales History</h1>
             <p className="text-body-md text-on-surface-variant font-medium">Analyze past transactions and manage receipt records.</p>
           </div>
 
-          <div className="flex gap-4">
-            <button className="bg-white border border-outline-variant px-6 py-3 flex items-center gap-2 text-label-sm text-primary-container font-black hover:bg-surface-container-low transition-all rounded-xl shadow-sm">
-              <span className="material-symbols-outlined text-lg">download</span>
-              EXPORT CSV
-            </button>
-            <button className="bg-primary-container text-white px-6 py-3 flex items-center gap-2 text-label-sm font-black hover:brightness-110 transition-all rounded-xl shadow-lg shadow-primary-container/20">
-              <span className="material-symbols-outlined text-lg">print</span>
-              BATCH PRINT
-            </button>
-          </div>
+
         </div>
 
         {/* Filters Bento Grid */}
@@ -189,18 +176,7 @@ const Reports = () => {
             </div>
           </div>
 
-          <div className="bg-white border border-outline-variant p-6 rounded-2xl shadow-sm hover:border-primary-container/30 transition-all group">
-            <div className="flex justify-between items-start mb-4">
-              <span className="text-label-sm text-outline uppercase tracking-widest font-black">Refunds Issued</span>
-              <div className="w-10 h-10 bg-error-container/10 text-error rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <span className="material-symbols-outlined">undo</span>
-              </div>
-            </div>
-            <div className="text-headline-xl text-primary-container font-black tracking-tighter">0</div>
-            <div className="flex items-center gap-1 text-secondary mt-3 text-label-sm font-black">
-              <span>Stable Ops</span>
-            </div>
-          </div>
+ 
         </div>
 
         {/* Transaction Table */}
@@ -258,12 +234,7 @@ const Reports = () => {
                           >
                             <span className="material-symbols-outlined text-lg">visibility</span>
                           </button>
-                          <button
-                            className="p-2.5 bg-surface-container text-primary-container rounded-lg hover:bg-secondary hover:text-white transition-all shadow-sm"
-                            title="Reprint Receipt"
-                          >
-                            <span className="material-symbols-outlined text-lg">print</span>
-                          </button>
+                      
                         </div>
                       </td>
                     </tr>
@@ -354,43 +325,7 @@ const Reports = () => {
                 </div>
               </div>
 
-              {/* Analytics Context */}
-              <div className="lg:col-span-2 bg-primary-container rounded-[40px] p-12 text-white relative overflow-hidden flex flex-col justify-center shadow-2xl">
-                <div className="relative z-10">
-                  <h3 className="text-[48px] font-black mb-6 leading-none tracking-tight">Operational<br />Intelligence</h3>
-                  <p className="text-on-primary-container text-body-lg font-medium max-w-md mb-12 opacity-80">
-                    Quickly spot trends, identify high-volume sales windows, and manage returns with our integrated reporting engine.
-                  </p>
-
-                  <div className="flex gap-6">
-                    <div className="bg-white/10 backdrop-blur-xl p-8 rounded-3xl flex-1 border border-white/10">
-                      <p className="text-[10px] font-black text-secondary-container uppercase tracking-[0.2em] mb-3">Transaction Health</p>
-                      <p className="text-3xl font-black">100% SECURE</p>
-                      <div className="mt-4 flex items-center gap-2 text-secondary-container">
-                        <span className="material-symbols-outlined text-sm">verified</span>
-                        <span className="text-[10px] font-black uppercase tracking-widest">Verified by Audit</span>
-                      </div>
-                    </div>
-                    <div className="bg-white/10 backdrop-blur-xl p-8 rounded-3xl flex-1 border border-white/10">
-                      <p className="text-[10px] font-black text-secondary-container uppercase tracking-[0.2em] mb-3">Cloud Sync Status</p>
-                      <p className="text-3xl font-black">SYNCED</p>
-                      <div className="mt-4 flex items-center gap-2 text-secondary-container">
-                        <span className="material-symbols-outlined text-sm">cloud_done</span>
-                        <span className="text-[10px] font-black uppercase tracking-widest">Up to date</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Decorative Background */}
-                <div className="absolute right-0 top-0 w-full h-full opacity-20 pointer-events-none mix-blend-overlay">
-                  <img
-                    alt="Data Visualization"
-                    className="w-full h-full object-cover"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWF_oSvm8G6VYQbfu4g6acXbnW74smmHhXK1zhlAkHauXUK9YA8dPnqkuHCbOQB72e98MSaD34VK39d1bvwML3a8DK41WqC6WmAAdQqRNywS-2rB4aoxkvtDpk0l9GA3o3HoRv7UDbWapsVKwIBGKToHWvYjH54ryAagyClhVeS-3lO0WIgLq4PDDgDtJXkDCdsNgO_LfKBqlPNfD_UK4LHIjnh-4_axM4wGZTd9G6DThm-gwsHsQ9omLXgXftErbpD3T15S76RTs"
-                  />
-                </div>
-              </div>
+          
             </div>
           </div>
         )}

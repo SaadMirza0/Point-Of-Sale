@@ -135,6 +135,8 @@ const printReceipt = (data) => {
 
   win.webContents.on('did-finish-load', () => {
     setTimeout(async () => {
+
+
       // --- PRINTER LOGIC (Keep for later) ---
       /*
       win.webContents.print({ 

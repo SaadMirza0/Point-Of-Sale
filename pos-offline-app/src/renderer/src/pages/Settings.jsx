@@ -7,7 +7,7 @@ const Settings = () => {
     store_name: '',
     store_address: '',
     store_contact: '',
-    store_email: 'ops@retailos.com',
+    store_email: 'saadmirzapak@gmail.com',
     tax_rate: 0,
     currency_symbol: 'Rs.',
     low_stock_threshold: 10,
@@ -169,9 +169,7 @@ const Settings = () => {
               </div>
               <div className="col-span-2 flex justify-between items-center pt-md border-t border-outline-variant/30 mt-4">
                 <p className="text-[10px] font-black text-outline uppercase tracking-[0.2em]">All changes are saved automatically</p>
-                <button className="bg-primary-container text-white px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:brightness-110 transition-all shadow-lg shadow-primary-container/20">
-                  REFRESH PROFILE
-                </button>
+              
               </div>
             </div>
           </div>
@@ -194,10 +192,7 @@ const Settings = () => {
                     onChange={(e) => handleSettingChange('currency_symbol', e.target.value)}
                   />
                 </div>
-                <button className="flex items-center gap-2 text-secondary font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-transform bg-secondary-container/10 px-4 py-2 rounded-xl border border-secondary/20">
-                  <span className="material-symbols-outlined text-lg">add_circle</span>
-                  ADD NEW RULE
-                </button>
+             
               </div>
             </div>
             
@@ -262,7 +257,6 @@ const Settings = () => {
           </div>
         </section>
 
-        {/* Sidebar Settings (Printer & Sync) */}
         <aside className="col-span-12 lg:col-span-4 space-y-lg">
           
           {/* Online Sync Status */}
@@ -276,14 +270,11 @@ const Settings = () => {
                 </div>
               </div>
               <h3 className="text-headline-md font-black uppercase mb-2">Real-Time Sync</h3>
-              <p className="text-body-md text-white/70 mb-10 leading-relaxed font-medium">Last full mirror sync completed 2 minutes ago. All transactional data is securely backed up.</p>
-              <button className="w-full bg-white/10 border border-white/20 hover:bg-white/20 active:scale-95 transition-all py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.15em] flex items-center justify-center gap-3">
-                <span className="material-symbols-outlined text-[20px] animate-spin-slow">sync</span>
-                Force Cloud Refresh
-              </button>
+              <p className="text-body-md text-white/70 mb-10 leading-relaxed font-medium">Last full mirror sync completed 1 minute ago all transactional data is securely backed up.</p>
+             
             </div>
             {/* Background Decoration */}
-            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+          
           </div>
 
           {/* Printer Configuration */}
@@ -317,60 +308,14 @@ const Settings = () => {
                 </div>
               </div>
 
-              <div className="p-6 bg-surface-container-low rounded-2xl border border-outline-variant/30 space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black text-outline uppercase tracking-widest">Status</span>
-                  <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-lg text-[10px] font-black uppercase border border-secondary/20">READY</span>
-                </div>
-                <div className="flex gap-3">
-                  <button 
-                    onClick={handleTestPrint}
-                    className="flex-1 text-[10px] font-black py-3 border border-outline-variant/50 rounded-xl bg-white hover:bg-primary-container hover:text-white transition-all uppercase tracking-widest shadow-sm"
-                  >
-                    Test Print
-                  </button>
-                  <button className="flex-1 text-[10px] font-black py-3 border border-outline-variant/50 rounded-xl bg-white hover:bg-primary-container hover:text-white transition-all uppercase tracking-widest shadow-sm">Identify</button>
-                </div>
-              </div>
+ 
 
-              <div className="flex items-center justify-between pt-2">
-                <span className="text-body-md font-black text-primary-container uppercase tracking-tight">Auto-print Receipts</span>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    className="sr-only peer" 
-                    checked={settings.auto_print}
-                    onChange={(e) => handleSettingChange('auto_print', e.target.checked)}
-                  />
-                  <div className="w-14 h-8 bg-surface-container rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-outline-variant/20 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-secondary"></div>
-                </label>
-              </div>
+             
             </div>
           </div>
 
           {/* UI Performance Card */}
-          <div className="bg-surface-container-high/40 border-2 border-dashed border-outline-variant p-10 rounded-[2.5rem] relative overflow-hidden group">
-            <div className="relative z-10">
-              <h3 className="text-headline-md font-black text-primary-container uppercase mb-2">Display Density</h3>
-              <p className="text-body-md text-outline font-medium mb-8 leading-relaxed">Optimize the interface for your screen resolution and scanner speed.</p>
-              <div className="flex bg-white/50 p-1.5 rounded-2xl border border-outline-variant/30 backdrop-blur-sm">
-                {['Comfortable', 'Compact'].map((density) => (
-                  <button 
-                    key={density}
-                    onClick={() => handleSettingChange('ui_density', density)}
-                    className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                      settings.ui_density === density 
-                      ? 'bg-primary-container text-white shadow-lg' 
-                      : 'text-outline hover:text-primary-container'
-                    }`}
-                  >
-                    {density}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <span className="material-symbols-outlined absolute -bottom-8 -right-8 text-[140px] text-primary-container/5 select-none pointer-events-none group-hover:scale-110 transition-transform duration-1000">grid_view</span>
-          </div>
+       
         </aside>
       </div>
 
