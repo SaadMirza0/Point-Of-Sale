@@ -1,23 +1,24 @@
-const { ipcMain } = require('electron');
-const { db } = require('./database');
-const { printReceipt } = require('./printer');
-const { Client } = require('pg');
+import { ipcMain } from 'electron';
+import { db } from './database.js';
+import { printReceipt } from './printer.js';
+import pg from 'pg';
+const { Client } = pg;
 
 const neonConfig = {
   connectionString: "postgresql://neondb_owner:npg_CR35wFemruYs@ep-rapid-surf-aod97wzm-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
 };
 
-async function connectNeon() {
+export async function connectNeon() {
   const client = new Client(neonConfig);
   await client.connect();
   return client;
 }
 
-const setupHandlers = () => {
+export const setupHandlers = () => {
 
   //  PRINTER MANAGEMENT 
   ipcMain.handle('get-printers', async (event) => {
-    return event.sender.getPrinters();
+    return await event.sender.getPrintersAsync();
   });
 
   ipcMain.on('print-receipt', (event, data) => {
@@ -358,7 +359,4 @@ const setupHandlers = () => {
 };
 
 
-module.exports = {
-  setupHandlers,
-  connectNeon
-};
+

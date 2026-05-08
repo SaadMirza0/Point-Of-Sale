@@ -1,19 +1,20 @@
-const { app, BrowserWindow } = require('electron');
-const path = require('path');
-const { initDB } = require('./database');
-const { setupHandlers } = require('./ipcHandler');
-const { startAutoSync } = require('./syncService');
+import { app, BrowserWindow, ipcMain } from 'electron';
+import path from 'path';
+import { setupHandlers } from './ipcHandler.js';
+import { startAutoSync } from './syncService.js';
+import { initDB } from './database.js';
+
+
 
 function createWindow() {
-const path = require('path'); // Make sure this is at the top of your file
 
 const mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
   
-    icon: path.join(process.cwd(), 'officeicons.ico'), 
+    icon: path.join(process.cwd(), '48x48.ico'), 
     webPreferences: {
-      preload: path.join(__dirname, '../preload/index.js'),
+      preload: path.join(__dirname, 'index.js'),
       contextIsolation: true,
       nodeIntegration: false,
     },

@@ -10,6 +10,7 @@ export default defineConfig({
     lib: {
       // FIX: Added /index to the path
       entry: 'src/preload/index.js', 
+      fileName: () => 'index.js',
       formats: ['cjs'],
     },
     rollupOptions: {

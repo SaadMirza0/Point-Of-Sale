@@ -1,8 +1,8 @@
-const { BrowserWindow, dialog } = require('electron');
-const fs = require('fs');
-const path = require('path');
+import { BrowserWindow, dialog } from 'electron';
+import fs from 'fs';
+import path from 'path';
 
-const printReceipt = (data) => {
+export const printReceipt = (data) => {
   let win = new BrowserWindow({
     show: false,
     webPreferences: {
@@ -176,4 +176,4 @@ const printReceipt = (data) => {
   });
 };
 
-module.exports = { printReceipt };
+

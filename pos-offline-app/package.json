@@ -1,9 +1,9 @@
 {
-  "name": "S&M-POS",
-  "productName": "S&M POS",
+  "name": "SM-POS",
+  "productName": "SM POS",
   "version": "1.0.0",
-  "description": "S&M POS application",
-  "main": "src/main/index.js",
+  "description": "SM POS application",
+  "main": ".vite/build/main.js",
   "private": true,
   "scripts": {
     "start": "electron-forge start",

@@ -1,7 +1,7 @@
-const { db } = require('./database');
-const { connectNeon } = require('./ipcHandler');
+import { db } from './database.js';
+import { connectNeon } from './ipcHandler.js';
 
-const startAutoSync = () => {
+export const startAutoSync = () => {
   setInterval(async () => {
     try {
       const client = await connectNeon();
@@ -71,11 +71,12 @@ const startAutoSync = () => {
       await client.end();
       console.log("✅ Full Mirror Sync Complete.");
 
-      const { BrowserWindow } = require('electron');
-      const windows = BrowserWindow.getAllWindows();
-      if (windows.length > 0) {
-        windows[0].webContents.send('database-updated');
-      }
+      import('electron').then(({ BrowserWindow }) => {
+        const windows = BrowserWindow.getAllWindows();
+        if (windows.length > 0) {
+          windows[0].webContents.send('database-updated');
+        }
+      });
 
     } catch (error) {
       console.log("☁️ Sync Paused: Connection Issue.");
@@ -83,4 +84,4 @@ const startAutoSync = () => {
   }, 30000); // every 30 seconds
 };
 
-module.exports = { startAutoSync };
+

@@ -1,12 +1,13 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
-const { app } = require('electron');
+import sqlite3Module from 'sqlite3';
+const sqlite3 = sqlite3Module.verbose();
+import path from 'path';
+import { app } from 'electron';
 
 // Safe path for the database file
 const dbPath = path.join(app.getPath('userData'), 'pos_database.db');
-const db = new sqlite3.Database(dbPath);
+export const db = new sqlite3.Database(dbPath);
 
-const initDB = () => {
+export const initDB = () => {
   db.serialize(() => {
     // 1. PRODUCTS TABLE
     db.run(`CREATE TABLE IF NOT EXISTS products (
@@ -59,4 +60,4 @@ const initDB = () => {
   });
 };
 
-module.exports = { db, initDB };
+
