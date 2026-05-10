@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
 
 // IMPORT YOUR REAL PAGES HERE
 import Inventory from './pages/Inventory'; 
@@ -16,33 +16,54 @@ const App = () => {
         
         {/* Sidebar */}
         <div className="w-64 bg-primary text-white flex flex-col border-r border-primary-container shadow-xl z-40">
-
+    <div className="p-6 border-t border-primary-container">
+            <div className="flex items-center gap-3 text-xs text-outline-variant uppercase tracking-widest font-bold">
+          
+              Software by Saad Mirza
+            </div>
+          </div>
           <nav className="flex-1 p-6 space-y-4 font-public-sans">
-            <Link to="/" className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary-container transition-all group">
+            <NavLink
+              to="/"
+              end
+              className={({ isActive }) => `flex items-center gap-3 p-3 rounded-lg transition-all group ${isActive ? 'bg-primary-container text-white' : 'hover:bg-primary-container text-white/80 hover:text-white'}`}
+            >
               <span className="material-symbols-outlined text-outline-variant group-hover:text-white">dashboard</span>
               <span className="font-semibold tracking-wide">Dashboard</span>
-            </Link>
-            <Link to="/sell" className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary-container transition-all group">
+            </NavLink>
+            <NavLink
+              to="/sell"
+              className={({ isActive }) => `flex items-center gap-3 p-3 rounded-lg transition-all group ${isActive ? 'bg-primary-container text-white' : 'hover:bg-primary-container text-white/80 hover:text-white'}`}
+            >
               <span className="material-symbols-outlined text-outline-variant group-hover:text-white">shopping_cart</span>
               <span className="font-semibold tracking-wide">POS (selling page)</span>
-            </Link>
-            <Link to="/inventory" className="flex items-center gap-3 p-3 rounded-lg bg-primary-container transition-all group">
-              <span className="material-symbols-outlined text-white">inventory_2</span>
-              <span className="font-semibold tracking-wide text-white">Inventory</span>
-            </Link>
-            <Link to="/reports" className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary-container transition-all group">
+            </NavLink>
+            <NavLink
+              to="/inventory"
+              className={({ isActive }) => `flex items-center gap-3 p-3 rounded-lg transition-all group ${isActive ? 'bg-primary-container text-white' : 'hover:bg-primary-container text-white/80 hover:text-white'}`}
+            >
+              <span className="material-symbols-outlined text-outline-variant group-hover:text-white">inventory_2</span>
+              <span className="font-semibold tracking-wide">Inventory</span>
+            </NavLink>
+            <NavLink
+              to="/reports"
+              className={({ isActive }) => `flex items-center gap-3 p-3 rounded-lg transition-all group ${isActive ? 'bg-primary-container text-white' : 'hover:bg-primary-container text-white/80 hover:text-white'}`}
+            >
               <span className="material-symbols-outlined text-outline-variant group-hover:text-white">analytics</span>
               <span className="font-semibold tracking-wide">Reports</span>
-            </Link>
-            <Link to="/settings" className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary-container transition-all group">
+            </NavLink>
+            <NavLink
+              to="/settings"
+              className={({ isActive }) => `flex items-center gap-3 p-3 rounded-lg transition-all group ${isActive ? 'bg-primary-container text-white' : 'hover:bg-primary-container text-white/80 hover:text-white'}`}
+            >
               <span className="material-symbols-outlined text-outline-variant group-hover:text-white">settings</span>
               <span className="font-semibold tracking-wide">Settings</span>
-            </Link>
+            </NavLink>
           </nav>
           <div className="p-6 border-t border-primary-container">
             <div className="flex items-center gap-3 text-xs text-outline-variant uppercase tracking-widest font-bold">
               <div className="w-2 h-2 rounded-full bg-secondary animate-pulse"></div>
-              System Online
+              Software by Saad Mirza
             </div>
           </div>
         </div>

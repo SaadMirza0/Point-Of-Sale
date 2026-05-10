@@ -47,6 +47,40 @@ const Reports = () => {
     }
   };
 
+  const handleReprintReceipt = async () => {
+    if (!selectedSale) return;
+
+    try {
+      const storeName = await window.posAPI.getSetting('store_name');
+      const storeAddress = await window.posAPI.getSetting('store_address');
+      const storeContact = await window.posAPI.getSetting('store_contact');
+      const currencySymbol = await window.posAPI.getSetting('currency_symbol');
+      const selectedPrinter = await window.posAPI.getSetting('selected_printer');
+
+      const items = selectedItems.map((item) => ({
+        name: item.product_name || item.name || 'Item',
+        qty: item.qty,
+        sale_price: item.sale_price ?? item.price ?? item.unit_price ?? 0,
+      }));
+
+      window.posAPI.printReceipt({
+        items,
+        total: selectedSale.total,
+        method: selectedSale.method,
+        taxAmount: selectedSale.tax_amount ?? 0,
+        discount: selectedSale.discount ?? 0,
+        storeName,
+        storeAddress,
+        storeContact,
+        currencySymbol,
+        selectedPrinter,
+      });
+    } catch (error) {
+      console.error('Reprint failed:', error);
+      alert('Unable to reprint receipt. Please try again.');
+    }
+  };
+
   const debouncedSearch = useDebouncedCallback(handleSearchAsync, 600);
 
   const handleSearch = (e) => {
@@ -318,7 +352,10 @@ const Reports = () => {
                 </div>
 
                 <div className="mt-10">
-                  <button className="w-full bg-primary-container text-white py-4 rounded-2xl text-label-sm font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:brightness-110 shadow-lg shadow-primary-container/20 transition-all">
+                  <button
+                    onClick={handleReprintReceipt}
+                    className="w-full bg-primary-container text-white py-4 rounded-2xl text-label-sm font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:brightness-110 shadow-lg shadow-primary-container/20 transition-all"
+                  >
                     <span className="material-symbols-outlined">print</span>
                     REPRINT RECEIPT
                   </button>

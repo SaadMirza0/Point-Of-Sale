@@ -11,11 +11,8 @@ const Settings = () => {
     tax_rate: 0,
     currency_symbol: 'Rs.',
     low_stock_threshold: 10,
-    auto_print: true,
-    ui_density: 'Comfortable',
-    selected_printer: ''
   });
-  const [printers, setPrinters] = useState([]);
+ 
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
 
@@ -36,17 +33,10 @@ const Settings = () => {
       setSettings(prev => ({ ...prev, ...loadedSettings }));
     };
 
-    const loadPrinters = async () => {
-      try {
-        const list = await window.posAPI.getPrinters();
-        setPrinters(list || []);
-      } catch (err) {
-        console.error("Printer load error");
-      }
-    };
+ 
 
     loadAllSettings();
-    loadPrinters();
+    
   }, []);
 
   const saveSettingAsync = async (key, value) => {
@@ -72,26 +62,7 @@ const Settings = () => {
     debouncedSave(key, value);
   };
 
-  const handleTestPrint = async () => {
-    try {
-      const selectedPrinter = await window.posAPI.getSetting('selected_printer');
-      window.posAPI.printReceipt({
-        items: [{ name: 'Test Transaction', qty: 1, sale_price: 0 }],
-        total: 0,
-        method: 'TEST PRINT',
-        storeName: settings.store_name || 'My Store',
-        storeAddress: settings.store_address,
-        storeContact: settings.store_contact,
-        taxAmount: 0,
-        discount: 0,
-        selectedPrinter
-      });
-      setStatus("Test print signal sent!");
-      setTimeout(() => setStatus(''), 2000);
-    } catch (err) {
-      setError("Failed to communicate with printer");
-    }
-  };
+
 
   return (
     <main className="flex-1 p-margin bg-surface overflow-y-auto custom-scrollbar">
@@ -303,42 +274,7 @@ const Settings = () => {
           
           </div>
 
-          {/* Printer Configuration */}
-          <div className="bg-white border border-outline-variant p-lg rounded-3xl shadow-sm overflow-hidden relative">
-            <div className="absolute top-0 left-0 w-full h-1 bg-primary-container/10"></div>
-            <div className="flex items-center gap-4 mb-8">
-              <div className="w-12 h-12 bg-surface-container rounded-2xl flex items-center justify-center text-primary-container">
-                <span className="material-symbols-outlined text-2xl">print</span>
-              </div>
-              <div>
-                <h3 className="text-headline-md text-primary-container uppercase tracking-tight font-black leading-none">Hardware</h3>
-              
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <div>
-                <label className="block text-label-sm text-outline mb-3 uppercase font-black tracking-widest">Receipt Printer</label>
-                <div className="relative group">
-                  <select 
-                    value={settings.selected_printer}
-                    onChange={(e) => handleSettingChange('selected_printer', e.target.value)}
-                    className="w-full bg-surface-container-low border-2 border-transparent focus:border-primary-container/20 rounded-2xl px-md py-4 text-body-md font-bold text-primary-container outline-none appearance-none transition-all"
-                  >
-                    <option value="">Default System Printer</option>
-                    {printers.map(p => (
-                      <option key={p.name} value={p.name}>{p.name}</option>
-                    ))}
-                  </select>
-                  <span className="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-outline pointer-events-none group-focus-within:rotate-180 transition-transform">expand_more</span>
-                </div>
-              </div>
-
- 
-
-             
-            </div>
-          </div>
+      
 
           
        

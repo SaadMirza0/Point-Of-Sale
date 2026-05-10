@@ -12,7 +12,9 @@ export const printReceipt = (data) => {
   });
 
   const { items, total, method, storeName, storeAddress, storeContact, taxAmount, discount, isTaxIncluded = true, currencySymbol = 'Rs.' } = data;
-  const dateStr = new Date().toLocaleString();
+  const billDate = new Date();
+  const dateStr = billDate.toLocaleDateString();
+  const timeStr = billDate.toLocaleTimeString();
   const subtotal = items.reduce((acc, item) => acc + (item.sale_price * item.qty), 0);
 
   const html = `
@@ -65,6 +67,7 @@ export const printReceipt = (data) => {
           <span class="store-info">Ph: ${storeContact || '000-0000000'}</span>
           <div style="margin-top: 2mm;">
              <span class="store-info">Date: ${dateStr}</span>
+             <span class="store-info">Time: ${timeStr}</span>
              <span class="store-info">Payment Method: ${method}</span>
           </div>
         </div>
