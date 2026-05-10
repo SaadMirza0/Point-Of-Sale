@@ -138,7 +138,7 @@ export const printReceipt = (data) => {
 
 
       // --- PRINTER LOGIC (Keep for later) ---
-      /*
+     
       win.webContents.print({ 
         silent: true, 
         printBackground: true,
@@ -147,7 +147,7 @@ export const printReceipt = (data) => {
         if (!success) console.error('Print failed:', failureReason);
         win.close();
       });
-      */
+   
 
       // --- SAVE AS PDF LOGIC ---
       try {

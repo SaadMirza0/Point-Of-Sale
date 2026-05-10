@@ -79,17 +79,14 @@ export default function WebInventory() {
           <p className="text-sm text-on-surface-variant font-medium">Manage your product catalog and stock levels.</p>
         </div>
         <div className="flex gap-4">
-          <button className="flex items-center gap-2 border border-outline-variant px-4 py-2 rounded-lg text-primary text-xs font-bold uppercase tracking-wider hover:bg-slate-50 transition-colors">
-            <span className="material-symbols-outlined text-sm">upload_file</span>
-            <span>Upload Excel</span>
-          </button>
+         
           <button
             onClick={() => {
               setIsEditing(false);
               setFormData({ barcode: '', name: '', brand: '', category: '', size: '', unit: '', price: 0, stock: 0 });
               barcodeRef.current?.focus();
             }}
-            className="flex items-center gap-2 bg-primary text-black px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity"
           >
             <span className="material-symbols-outlined text-sm">inventory</span>
             <span>Add Product</span>
@@ -371,7 +368,7 @@ export default function WebInventory() {
                 )}
                 <button
                   type="submit"
-                  className="flex-[2] bg-primary text-black py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:opacity-90 shadow-md shadow-primary/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+                  className="flex-[2] bg-primary text-white py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:opacity-90 shadow-md shadow-primary/20 transition-all active:scale-95 flex items-center justify-center gap-2"
                 >
                   <span className="material-symbols-outlined text-sm">{isEditing ? 'save' : 'cloud_upload'}</span>
                   <span>{isEditing ? 'Update Item' : 'Add to Catalog'}</span>

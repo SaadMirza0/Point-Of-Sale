@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed-dim": "#4fdbc8",
+                    "on-tertiary": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "on-secondary-container": "#006f64",
+                    "primary-fixed": "#b6ebfe",
+                    "surface-container-high": "#dee8ff",
+                    "on-primary-fixed": "#001f28",
+                    "on-error-container": "#93000a",
+                    "tertiary": "#452900",
+                    "inverse-on-surface": "#ecf1ff",
+                    "on-primary-fixed-variant": "#114d5d",
+                    "background": "#f9f9ff",
+                    "surface-tint": "#306576",
+                    "error": "#ba1a1a",
+                    "surface-container-low": "#f0f3ff",
+                    "on-tertiary-fixed": "#2a1700",
+                    "outline": "#70787c",
+                    "on-primary-container": "#87bbce",
+                    "secondary": "#006b5f",
+                    "error-container": "#ffdad6",
+                    "on-surface": "#111c2d",
+                    "inverse-surface": "#263143",
+                    "tertiary-fixed": "#ffddb8",
+                    "on-surface-variant": "#40484b",
+                    "on-secondary-fixed-variant": "#005048",
+                    "on-secondary": "#ffffff",
+                    "surface-dim": "#cfdaf2",
+                    "secondary-fixed": "#71f8e4",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "on-background": "#111c2d",
+                    "surface": "#f9f9ff",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "on-secondary-fixed": "#00201c",
+                    "surface-bright": "#f9f9ff",
+                    "on-tertiary-container": "#f8a110",
+                    "surface-container": "#e7eeff",
+                    "primary": "#003441",
+                    "outline-variant": "#c0c8cb",
+                    "primary-container": "#0f4c5c",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-primary": "#9acee1",
+                    "surface-container-highest": "#d8e3fb",
+                    "secondary-container": "#6df5e1",
+                    "tertiary-container": "#643d00",
+                    "on-error": "#ffffff",
+                    "primary-fixed-dim": "#9acee1",
+                    "surface-variant": "#d8e3fb"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "base": "4px",
+                    "margin": "32px",
+                    "gutter": "20px",
+                    "md": "16px",
+                    "lg": "24px",
+                    "sm": "8px",
+                    "xl": "40px",
+                    "xs": "4px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Public Sans"],
+                    "data-mono": ["Public Sans"],
+                    "label-sm": ["Public Sans"],
+                    "headline-xl": ["Public Sans"],
+                    "body-md": ["Public Sans"],
+                    "body-lg": ["Public Sans"]
+            },
+            "fontSize": {
+                    "headline-md": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "data-mono": ["14px", {"lineHeight": "20px", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0", "fontWeight": "400"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "letterSpacing": "0", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Public Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased min-h-screen">
+<!-- TopNavBar -->
+<header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center h-16 px-8 w-full sticky top-0 z-30 shadow-none font-['Public_Sans'] text-sm antialiased">
+<div class="flex items-center gap-6">
+<span class="text-lg font-bold text-[#0F4C5C] dark:text-white tracking-tight">RetailOS</span>
+<div class="hidden md:flex items-center bg-surface-container px-3 py-1.5 rounded-lg border border-outline-variant">
+<span class="material-symbols-outlined text-slate-500 mr-2 text-[20px]">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-64 placeholder-slate-400" placeholder="Search settings..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-2 bg-primary-container text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-opacity-90 transition-all">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                New Sale
+            </button>
+<div class="flex items-center gap-2 text-slate-500">
+<div class="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer active:opacity-80 rounded-full">
+<span class="material-symbols-outlined" data-icon="sync">sync</span>
+</div>
+<div class="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer active:opacity-80 rounded-full relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
+</div>
+<div class="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer active:opacity-80 rounded-full">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</div>
+</div>
+<img alt="Store Manager" class="w-8 h-8 rounded-full border border-slate-200" data-alt="A professional portrait of a modern store manager, a man in a crisp business-casual shirt, set against a blurred high-end retail interior background. The lighting is soft and professional, emphasizing a light-mode aesthetic. The color palette features clean whites and professional blues, reflecting the operational excellence of the brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4ugb7S3VchO5oUOx8t65rRVfC0FZz1heCJ1G3cODlIG23lKIkpktB5uoGnVJQ4EasyG7QpQxU0vw7fHjWtdzOIjj3oVKZHDclrMJligdjeXq8IJWVvoRffWI8Bg4DksW7wOR9_-T2ztMG3yXacfqUEe7wg3bOAmPCZksbDjQ1Z0GNFP4PeAAYtlpovHXC8AztYx_8BGe1VSXcWJ6Gg63mm9JACKw_LM3zf0Aw7BxMEh2HJqc3JzPRB-qrTjOWd0JqOsBvxcO3FIk"/>
+</div>
+</header>
+<div class="flex">
+<!-- SideNavBar -->
+<aside class="bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 w-64 fixed left-0 top-16 h-[calc(100vh-64px)] flex flex-col py-6 font-['Public_Sans'] text-sm tracking-wide font-medium">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center text-white">
+<span class="material-symbols-outlined">terminal</span>
+</div>
+<div>
+<p class="font-bold text-[#0F4C5C] dark:text-teal-400">Main Terminal</p>
+<p class="text-xs text-slate-500">Station #01</p>
+</div>
+</div>
+<nav class="flex-grow space-y-1 px-3">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-150 scale-100 active:scale-95 origin-left" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                    Dashboard
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-150 scale-100 active:scale-95 origin-left" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+                    Inventory
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-150 scale-100 active:scale-95 origin-left" href="#">
+<span class="material-symbols-outlined" data-icon="point_of_sale">point_of_sale</span>
+                    Point of Sale
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-150 scale-100 active:scale-95 origin-left" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+                    Sales History
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-[#0F4C5C] dark:text-teal-300 border-r-4 border-[#0F4C5C] dark:border-teal-400 transition-all duration-150 scale-100 active:scale-95 origin-left font-semibold" href="#">
+<span class="material-symbols-outlined" data-icon="settings" style="font-variation-settings: 'FILL' 1;">settings</span>
+                    Settings
+                </a>
+</nav>
+<div class="px-3 pt-6 border-t border-slate-100 dark:border-slate-800 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+                    Support
+                </a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-error dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+                    Logout
+                </a>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="ml-64 p-margin w-full">
+<header class="mb-lg">
+<h1 class="font-headline-xl text-headline-xl text-primary mb-xs">Settings &amp; Profile</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Manage your retail environment, hardware, and operational parameters.</p>
+</header>
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Profile & Store Info Card -->
+<section class="col-span-12 lg:col-span-8 space-y-lg">
+<div class="bg-surface-container-lowest border border-outline-variant p-lg rounded-xl">
+<div class="flex items-center gap-lg mb-xl">
+<div class="relative">
+<img alt="Profile Hero" class="w-24 h-24 rounded-xl object-cover border-2 border-primary-container" data-alt="A macro close-up of high-quality corporate branding materials on a clean white desk. The image captures a sense of professional identity with sharp focus, soft natural light, and a color palette of deep teals and pristine whites. The mood is sophisticated and organized, reflecting administrative excellence." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNiSs4nfDibbPbYZW1zm79vtXy4Xq0sLsg1P7_9rcb9XqTbByYPc7GT1xj4WK3q7m6T3YEJg8nlJameWEUIdAT-E7rpj7WbypRQbEJaarFo46jxEwkfCKQf0JgD0ue1zsQzk8jEMS_Utzbphe6Lc3nAsSq6LCQb0GKyuWLQjr9-IKAgCausoHulc62ZtsfmMniNZWppMg2bY44nCSjf_eAJ5PjHE_qmrhuLk-OO55n9T04r95hT-Me47ZlPZ_Mc9ubuHGKfZpP37o"/>
+<button class="absolute -bottom-2 -right-2 bg-white p-1.5 rounded-full shadow-sm border border-outline-variant text-primary hover:text-secondary transition-colors">
+<span class="material-symbols-outlined text-[18px]">photo_camera</span>
+</button>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-primary">Store Information</h2>
+<p class="font-body-md text-body-md text-slate-500">Update your public profile and store contact details.</p>
+</div>
+</div>
+<form class="grid grid-cols-2 gap-md">
+<div class="col-span-2">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs">Store Name</label>
+<input class="w-full border border-outline-variant rounded-lg px-md py-sm font-body-md focus:ring-2 focus:ring-primary focus:border-primary" type="text" value="RetailOS Global Terminal"/>
+</div>
+<div class="col-span-2 md:col-span-1">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs">Contact Phone</label>
+<input class="w-full border border-outline-variant rounded-lg px-md py-sm font-body-md focus:ring-2 focus:ring-primary focus:border-primary" type="tel" value="+1 (555) 012-3456"/>
+</div>
+<div class="col-span-2 md:col-span-1">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs">Support Email</label>
+<input class="w-full border border-outline-variant rounded-lg px-md py-sm font-body-md focus:ring-2 focus:ring-primary focus:border-primary" type="email" value="ops@retailos.com"/>
+</div>
+<div class="col-span-2">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs">Physical Address</label>
+<textarea class="w-full border border-outline-variant rounded-lg px-md py-sm font-body-md focus:ring-2 focus:ring-primary focus:border-primary" rows="3">782 Operational Way, Suite 400, Silicon Valley, CA 94025</textarea>
+</div>
+<div class="col-span-2 flex justify-end pt-md">
+<button class="bg-primary text-white px-lg py-sm rounded-lg font-headline-md text-sm hover:opacity-90 transition-opacity" type="button">Save Changes</button>
+</div>
+</form>
+</div>
+<!-- Tax Rates Configuration -->
+<div class="bg-surface-container-lowest border border-outline-variant p-lg rounded-xl">
+<div class="flex items-center justify-between mb-lg">
+<div>
+<h2 class="font-headline-md text-headline-md text-primary">Tax Rates</h2>
+<p class="font-body-md text-body-md text-slate-500">Configure regional GST and tax percentages.</p>
+</div>
+<button class="flex items-center gap-2 text-primary font-semibold text-sm hover:underline">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+                                Add New Tax
+                            </button>
+</div>
+<div class="overflow-hidden border border-outline-variant rounded-lg">
+<table class="w-full text-left">
+<thead class="bg-surface-container-low border-b border-outline-variant">
+<tr>
+<th class="px-md py-sm font-label-sm text-label-sm text-on-surface-variant">Tax Name</th>
+<th class="px-md py-sm font-label-sm text-label-sm text-on-surface-variant">Percentage</th>
+<th class="px-md py-sm font-label-sm text-label-sm text-on-surface-variant">Applied to</th>
+<th class="px-md py-sm font-label-sm text-label-sm text-on-surface-variant text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="hover:bg-surface-container-low transition-colors h-[56px]">
+<td class="px-md py-sm font-body-md text-primary font-medium">Standard GST</td>
+<td class="px-md py-sm font-data-mono text-data-mono">18.00%</td>
+<td class="px-md py-sm">
+<span class="bg-secondary/10 text-secondary px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">All Products</span>
+</td>
+<td class="px-md py-sm text-right">
+<button class="text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">edit</span></button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors h-[56px]">
+<td class="px-md py-sm font-body-md text-primary font-medium">Luxury Surcharge</td>
+<td class="px-md py-sm font-data-mono text-data-mono">5.00%</td>
+<td class="px-md py-sm">
+<span class="bg-tertiary/10 text-tertiary px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">Premium Goods</span>
+</td>
+<td class="px-md py-sm text-right">
+<button class="text-slate-400 hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">edit</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- Sidebar Settings (Printer & Sync) -->
+<aside class="col-span-12 lg:col-span-4 space-y-lg">
+<!-- Online Sync Status -->
+<div class="bg-primary-container p-lg rounded-xl text-white shadow-lg shadow-primary-container/20">
+<div class="flex items-center justify-between mb-md">
+<span class="font-label-sm text-label-sm text-white/70">CLOUD CONNECTIVITY</span>
+<span class="flex h-2 w-2 rounded-full bg-secondary-fixed animate-pulse"></span>
+</div>
+<h3 class="font-headline-md text-headline-md mb-xs">Online Sync</h3>
+<p class="font-body-md text-body-md text-white/80 mb-lg">Last synced 2 minutes ago. All data is up to date.</p>
+<button class="w-full bg-white/10 border border-white/20 hover:bg-white/20 transition-all py-sm rounded-lg font-headline-md text-sm flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="sync">sync</span>
+                            Force Sync Now
+                        </button>
+</div>
+<!-- Printer Configuration -->
+<div class="bg-surface-container-lowest border border-outline-variant p-lg rounded-xl">
+<div class="flex items-center gap-sm mb-lg">
+<span class="material-symbols-outlined text-primary" data-icon="print">print</span>
+<h3 class="font-headline-md text-headline-md text-primary">Printer Hardware</h3>
+</div>
+<div class="space-y-md">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-xs">Thermal Printer Selection</label>
+<select class="w-full border border-outline-variant rounded-lg px-md py-sm font-body-md focus:ring-2 focus:ring-primary focus:border-primary bg-white appearance-none">
+<option>EPSON TM-T88VI (Network)</option>
+<option>Star Micronics mC-Print3</option>
+<option>Bixolon SRP-350III</option>
+<option>Generic 80mm USB</option>
+</select>
+</div>
+<div class="p-md bg-surface-container rounded-lg border border-outline-variant/50">
+<div class="flex items-center justify-between mb-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Status</span>
+<span class="text-secondary font-bold text-xs">READY</span>
+</div>
+<div class="flex gap-2">
+<button class="flex-1 text-[12px] font-bold py-1.5 border border-outline-variant rounded bg-white hover:bg-slate-50 transition-colors uppercase tracking-widest">Test Print</button>
+<button class="flex-1 text-[12px] font-bold py-1.5 border border-outline-variant rounded bg-white hover:bg-slate-50 transition-colors uppercase tracking-widest">Identify</button>
+</div>
+</div>
+<div class="flex items-center justify-between pt-xs">
+<span class="font-body-md text-on-surface-variant">Auto-print receipts</span>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</div>
+<!-- Visual Density Guidance Card -->
+<div class="bg-surface-container-high/50 border-2 border-dashed border-outline-variant p-lg rounded-xl relative overflow-hidden">
+<div class="relative z-10">
+<h3 class="font-headline-md text-headline-md text-primary mb-xs">UI Performance</h3>
+<p class="font-body-md text-body-md text-slate-600 mb-md">Optimize the interface for your screen density.</p>
+<div class="flex gap-sm">
+<button class="flex-1 py-2 bg-primary text-white rounded text-xs font-bold uppercase tracking-tighter">Comfortable</button>
+<button class="flex-1 py-2 bg-white border border-outline-variant text-slate-500 rounded text-xs font-bold uppercase tracking-tighter">Compact</button>
+</div>
+</div>
+<span class="material-symbols-outlined absolute -bottom-4 -right-4 text-[120px] text-primary/5 select-none pointer-events-none">grid_view</span>
+</div>
+</aside>
+</div>
+</main>
+</div>
+<!-- Floating Action Button (FAB) - Suppressed as per Task Logic for Settings Page -->
+</body></html>

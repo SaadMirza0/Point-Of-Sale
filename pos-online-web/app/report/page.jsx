@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo } from 'react';
-import { getSalesHistory, getSaleItems } from '@/lib/actions';
+import { getSalesHistory, getSaleItems, getSetting } from '@/lib/actions';
 
 export default function WebReports() {
   const [sales, setSales] = useState([]);
@@ -10,7 +10,7 @@ export default function WebReports() {
   const [selectedItems, setSelectedItems] = useState([]);
   const [selectedSale, setSelectedSale] = useState(null);
   const [isDetailLoading, setIsDetailLoading] = useState(false);
-  
+
   // 1. Load Sales List from Neon Cloud
   const loadSales = async (type) => {
     setLoading(true);
@@ -43,10 +43,159 @@ export default function WebReports() {
     }
   };
 
+  // 2.5 Print Receipt
+  const handlePrint = async (sale) => {
+    try {
+      const items = await getSaleItems(sale.local_id || sale.id);
+      
+      const storeName = await getSetting('store_name');
+      const storeAddress = await getSetting('store_address');
+      const storeContact = await getSetting('store_phone');
+      
+      const dateStr = new Date(sale.sale_date).toLocaleString();
+      const method = sale.method;
+      const currencySymbol = 'Rs.';
+      
+      const subtotal = items.reduce((acc, item) => acc + (Number(item.price) * item.qty), 0);
+      const discount = 0;
+      const total = Number(sale.total);
+      const taxAmount = Math.max(0, total - subtotal + discount);
+      const isTaxIncluded = false;
+
+      const printWindow = window.open('', '_blank');
+
+      const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>Receipt #INV-${sale.id}</title>
+        <style>
+          @page { margin: 0; }
+          body { 
+            font-family: 'Courier New', Courier, monospace; 
+            width: 72mm; 
+            margin: 0; 
+            padding: 4mm; 
+            font-size: 11px;
+            color: #000;
+            line-height: 1.4;
+          }
+          .text-center { text-align: center; }
+          .text-right { text-align: right; }
+          .bold { font-weight: bold; }
+          .header { margin-bottom: 4mm; border-bottom: 1px double #000; padding-bottom: 2mm; }
+          .store-name { font-size: 18px; letter-spacing: 1px; display: block; }
+          .store-info { font-size: 9px; display: block; }
+          
+          .divider { border-top: 1px dashed #000; margin: 2mm 0; }
+          
+          .item-table { width: 100%; border-collapse: collapse; margin: 2mm 0; }
+          .item-table th { border-bottom: 1px solid #000; text-align: left; font-size: 10px; }
+          .item-table td { padding: 1mm 0; vertical-align: top; }
+          
+          .summary { margin-top: 2mm; width: 100%; }
+          .summary-row { display: flex; justify-content: space-between; font-size: 11px; }
+          
+          .grand-total { 
+            font-size: 15px; 
+            border-top: 1px solid #000; 
+            border-bottom: 1px double #000;
+            padding: 1.5mm 0;
+            margin: 2mm 0;
+          }
+          .tax-note { font-size: 8px; font-style: italic; margin-top: 1mm; display: block; }
+          .footer { margin-top: 6mm; border-top: 1px dashed #000; padding-top: 2mm; }
+          * { -webkit-print-color-adjust: exact; }
+        </style>
+      </head>
+      <body>
+        <div class="header text-center">
+          <span class="store-name bold">${(storeName || 'Saad Mirza').toUpperCase()}</span>
+          <span class="store-info">${storeAddress || 'Main Street, City'}</span>
+          <span class="store-info">Ph: ${storeContact || '000-0000000'}</span>
+          <div style="margin-top: 2mm;">
+             <span class="store-info">Date: ${dateStr}</span>
+             <span class="store-info">Payment Method: ${method}</span>
+          </div>
+        </div>
+
+        <table class="item-table">
+          <thead>
+            <tr>
+              <th style="width: 50%;">ITEM</th>
+              <th style="width: 15%; text-align: center;">QTY</th>
+              <th style="width: 35%; text-align: right;">TOTAL</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${items.map(item => `
+              <tr>
+                <td>${(item.product_name || item.name || '').toUpperCase()}</td>
+                <td style="text-align: center;">${item.qty}</td>
+                <td style="text-align: right;">${(Number(item.price || item.sale_price) * item.qty).toLocaleString()}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <div class="summary">
+          <div class="summary-row">
+            <span>Subtotal:</span>
+            <span>${currencySymbol} ${subtotal.toLocaleString()}</span>
+          </div>
+          
+          ${taxAmount > 0 ? `
+          <div class="summary-row">
+            <span>Tax (${isTaxIncluded ? 'Included' : 'Excluded'}):</span>
+            <span>${isTaxIncluded ? '' : '+'} ${currencySymbol} ${taxAmount.toLocaleString()}</span>
+          </div>
+          ` : `
+          <div class="summary-row">
+            <span>Tax:</span>
+            <span>${currencySymbol} 0.00</span>
+          </div>
+          `}
+          
+          ${discount > 0 ? `
+          <div class="summary-row">
+            <span>Discount:</span>
+            <span>- ${currencySymbol} ${discount.toLocaleString()}</span>
+          </div>
+          ` : ''}
+          
+          <div class="summary-row grand-total bold">
+            <span>NET TOTAL:</span>
+            <span>${currencySymbol} ${total.toLocaleString()}</span>
+          </div>
+          
+          <span class="tax-note text-right">
+            ${taxAmount > 0 && isTaxIncluded ? '*Tax included in Total' : taxAmount > 0 ? '*Tax added to subtotal' : '*Tax is not included'}
+          </span>
+        </div>
+
+        <div class="footer text-center">
+          <p class="bold" style="margin: 0;">THANK YOU !!</p>
+          <p style="margin: 0; font-size: 9px;">Software By Saad Mirza</p>
+        </div>
+        <script>
+          window.onload = function() { window.print(); window.close(); }
+        </script>
+      </body>
+    </html>
+  `;
+
+      printWindow.document.write(html);
+      printWindow.document.close();
+    } catch (e) {
+      alert("Error printing receipt");
+      console.error(e);
+    }
+  };
+
   // 3. Client-side Search (Receipt ID or Method)
   const filteredSales = useMemo(() => {
-    return sales.filter(s => 
-      s.id.toString().includes(searchTerm) || 
+    return sales.filter(s =>
+      s.id.toString().includes(searchTerm) ||
       s.method.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [sales, searchTerm]);
@@ -71,16 +220,7 @@ export default function WebReports() {
           <h1 className="text-3xl font-black text-primary mb-1">Sales History</h1>
           <p className="text-sm text-on-surface-variant font-medium">Analyze past transactions and manage receipt records.</p>
         </div>
-        <div className="flex gap-4">
-          <button className="bg-white border border-outline-variant px-4 py-2 flex items-center gap-2 text-[10px] font-black text-slate-700 hover:bg-slate-50 transition-colors uppercase tracking-widest rounded-lg">
-            <span className="material-symbols-outlined text-sm">download</span>
-            EXPORT CSV
-          </button>
-          <button className="bg-primary text-white px-4 py-2 flex items-center gap-2 text-[10px] font-black hover:opacity-90 transition-opacity uppercase tracking-widest rounded-lg">
-            <span className="material-symbols-outlined text-sm">print</span>
-            BATCH PRINT
-          </button>
-        </div>
+      
       </div>
 
       {/* Filters & Navigation */}
@@ -90,11 +230,11 @@ export default function WebReports() {
             <label className="block text-[10px] font-black text-slate-500 mb-2 uppercase tracking-widest">Search Transaction</label>
             <div className="relative">
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">receipt</span>
-              <input 
+              <input
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary transition-all font-bold placeholder:font-medium placeholder:text-slate-300" 
-                placeholder="Bill No. or Method..." 
+                className="w-full pl-10 pr-4 py-3 border border-outline-variant rounded-lg text-sm focus:outline-none focus:border-primary transition-all font-bold placeholder:font-medium placeholder:text-slate-300"
+                placeholder="Bill No. or Method..."
                 type="text"
               />
             </div>
@@ -102,7 +242,7 @@ export default function WebReports() {
           <div className="col-span-12 lg:col-span-8 flex justify-end">
             <div className="flex bg-slate-50 p-1 rounded-xl border border-outline-variant">
               {['today', 'yesterday', 'month', 'all'].map((t) => (
-                <button 
+                <button
                   key={t}
                   onClick={() => loadSales(t)}
                   className={`px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${filter === t ? 'bg-primary text-white shadow-md' : 'text-slate-500 hover:text-primary'}`}
@@ -201,10 +341,27 @@ export default function WebReports() {
               ) : filteredSales.map((s) => (
                 <tr key={s.id} className="hover:bg-slate-50 transition-colors group">
                   <td className="px-6 py-5 font-bold text-primary text-sm tracking-tight">#INV-{s.id}</td>
-                  <td className="px-6 py-5">
-                    <div className="text-xs font-bold text-slate-600">{new Date(s.sale_date).toLocaleDateString()}</div>
-                    <div className="text-[10px] font-medium text-slate-400">{new Date(s.sale_date).toLocaleTimeString()}</div>
+
+
+
+
+                  <td className="p-4 font-bold text-gray-600">
+                    {new Date(s.sale_date).toLocaleString('en-PK', {
+                      timeZone: 'Asia/Karachi',
+                      day: 'numeric',
+                      month: 'numeric',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit',
+                      hour12: true
+                    })}
                   </td>
+
+
+
+
+
                   <td className="px-6 py-5">
                     <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase border ${s.method === 'CASH' ? 'bg-secondary/5 text-secondary border-secondary/10' : 'bg-primary/5 text-primary border-primary/10'}`}>
                       {s.method}
@@ -221,14 +378,14 @@ export default function WebReports() {
                   </td>
                   <td className="px-6 py-5 text-center">
                     <div className="flex justify-center gap-2">
-                      <button 
+                      <button
                         onClick={() => handleViewDetails(s)}
-                        className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all" 
+                        className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all"
                         title="View Receipt"
                       >
                         <span className="material-symbols-outlined text-[18px]">visibility</span>
                       </button>
-                      <button className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all" title="Print Copy">
+                      <button onClick={() => handlePrint(s)} className="p-2 text-slate-400 hover:text-primary hover:bg-primary/5 rounded-lg transition-all" title="Print Copy">
                         <span className="material-symbols-outlined text-[18px]">print</span>
                       </button>
                     </div>
@@ -248,13 +405,13 @@ export default function WebReports() {
       {/* Bill Detail Modal */}
       {selectedSale && (
         <div className="fixed inset-0 bg-primary/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white border border-outline-variant w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+          <div className="bg-white border border-outline-variant w-full max-w-md rounded-2xl shadow-2xl overflow-hidden">
             <div className="p-8 pb-4 flex justify-between items-start">
               <div>
                 <h2 className="text-xl font-black text-primary uppercase tracking-tight">Receipt #INV-{selectedSale.id}</h2>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{new Date(selectedSale.sale_date).toLocaleString()}</p>
               </div>
-              <button 
+              <button
                 onClick={() => { setSelectedSale(null); setSelectedItems([]); }}
                 className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 text-slate-400 transition-colors"
               >
@@ -265,7 +422,7 @@ export default function WebReports() {
             <div className="px-8 py-4 space-y-4">
               <div className="border-t border-b border-dashed border-slate-200 py-6 my-4">
                 <p className="text-[10px] font-black uppercase mb-4 text-slate-300 tracking-[0.2em]">Items Purchased</p>
-                
+
                 {isDetailLoading ? (
                   <div className="py-10 text-center">
                     <div className="w-8 h-8 border-4 border-secondary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
@@ -312,8 +469,8 @@ export default function WebReports() {
             </div>
 
             <div className="p-8 pt-4">
-              <button 
-                onClick={() => { setSelectedSale(null); setSelectedItems([]); }}
+              <button
+                onClick={() => handlePrint(selectedSale)}
                 className="w-full bg-primary text-white py-4 rounded-xl font-black uppercase text-xs tracking-[0.2em] hover:opacity-90 shadow-lg shadow-primary/20 transition-all active:scale-95 flex items-center justify-center gap-2"
               >
                 <span className="material-symbols-outlined text-sm">print</span>
@@ -322,7 +479,7 @@ export default function WebReports() {
             </div>
           </div>
         </div>
-      )} 
+      )}
     </div>
   );
 }

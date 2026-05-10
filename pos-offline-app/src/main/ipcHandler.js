@@ -34,9 +34,9 @@ export const setupHandlers = () => {
   // 1. Add a New Product with Cloud Sync
   ipcMain.handle('add-product', async (event, product) => {
     const timestamp = new Date().toISOString();
-    // #region agent log
-    fetch('http://127.0.0.1:7798/ingest/24f9dd96-04e6-403c-9bd9-caaa42908f40',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'86dc4e'},body:JSON.stringify({sessionId:'86dc4e',runId:'pre-fix',hypothesisId:'H2',location:'ipcHandler.js:30',message:'add_product_received',data:{barcode:product?.barcode ?? null,nameLength:product?.name?.length ?? 0},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
+
+
+
     return new Promise((resolve, reject) => {
       const { barcode, name, brand, category, size, unit, price, stock } = product;
 
@@ -69,20 +69,19 @@ export const setupHandlers = () => {
           const values = [barcode, name, brand, category, size, unit, price, stock, timestamp];
 
           await client.query(neonQuery, values);
-          await client.end(); // IMPORTANT: Close the connection to save Neon resources
-          // #region agent log
-          fetch('http://127.0.0.1:7798/ingest/24f9dd96-04e6-403c-9bd9-caaa42908f40',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'86dc4e'},body:JSON.stringify({sessionId:'86dc4e',runId:'pre-fix',hypothesisId:'H2',location:'ipcHandler.js:64',message:'add_product_cloud_sync_success',data:{barcode,durationMs:Date.now()-cloudStartMs},timestamp:Date.now()})}).catch(()=>{});
-          // #endregion
+          await client.end();
+
+
+
 
           // STEP 3: MARK AS SYNCED LOCALLY
           db.run("UPDATE products SET is_synced = 1 WHERE barcode = ?", [barcode]);
           console.log(`✅ Product ${barcode} synced to Cloud (Neon)`);
 
         } catch (cloudErr) {
-          // If internet is down, the product stays in SQLite with is_synced = 0
-          // #region agent log
-          fetch('http://127.0.0.1:7798/ingest/24f9dd96-04e6-403c-9bd9-caaa42908f40',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'86dc4e'},body:JSON.stringify({sessionId:'86dc4e',runId:'pre-fix',hypothesisId:'H2',location:'ipcHandler.js:70',message:'add_product_cloud_sync_failed',data:{barcode,error:String(cloudErr?.message || cloudErr)},timestamp:Date.now()})}).catch(()=>{});
-          // #endregion
+
+
+
           console.error("☁️ Offline: Saved locally but cloud sync failed. Will retry later.");
         }
       });
@@ -137,46 +136,34 @@ export const setupHandlers = () => {
 
   // --- SALES MANAGEMENT ---
 
-  // src/main/ipcHandler.js
+
 
   // Save Sale with Cloud Sync
   ipcMain.handle('save-sale', async (event, saleData) => {
-    const timestamp = new Date().toISOString();
-    // #region agent log
-    fetch('http://127.0.0.1:7798/ingest/24f9dd96-04e6-403c-9bd9-caaa42908f40',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'86dc4e'},body:JSON.stringify({sessionId:'86dc4e',runId:'pre-fix',hypothesisId:'H1',location:'ipcHandler.js:131',message:'save_sale_received',data:{total:saleData?.total ?? null,method:saleData?.method ?? null,itemCount:saleData?.items?.length ?? 0},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
-    return new Promise((resolve) => {
-      const { total, received, change, method, items } = saleData;
+    const now = new Date().toISOString();
 
+    return new Promise((resolve) => {
       db.serialize(() => {
-        // 1. Save the main Bill
+        // 1. Save Main Sale
         db.run(
           "INSERT INTO sales (total, received, change_amount, method, sale_date, is_synced) VALUES (?, ?, ?, ?, ?, 0)",
-          [total, received, change, method, timestamp],
+          [saleData.total, saleData.received, saleData.change, saleData.method, now],
           function (err) {
-            if (err) {
-              // #region agent log
-              fetch('http://127.0.0.1:7798/ingest/24f9dd96-04e6-403c-9bd9-caaa42908f40',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'86dc4e'},body:JSON.stringify({sessionId:'86dc4e',runId:'pre-fix',hypothesisId:'H1',location:'ipcHandler.js:141',message:'save_sale_insert_failed',data:{error:String(err?.message || err)},timestamp:Date.now()})}).catch(()=>{});
-              // #endregion
-              return resolve({ success: false, error: err.message });
-            }
-
+            if (err) return resolve({ success: false });
             const saleId = this.lastID;
 
-            // 2. Save every item in the cart to sale_items
-            const itemStmt = db.prepare("INSERT INTO sale_items (sale_id, product_name, barcode, qty, price, total) VALUES (?, ?, ?, ?, ?, ?)");
+            // 2. IMPORTANT: Use a Statement to prevent "Double Inserting"
+            const stmt = db.prepare("INSERT INTO sale_items (sale_id, product_name, barcode, qty, price, total) VALUES (?, ?, ?, ?, ?, ?)");
 
-            items.forEach(item => {
-              itemStmt.run(saleId, item.name, item.barcode, item.qty, item.sale_price, (item.sale_price * item.qty));
+            saleData.items.forEach(item => {
+              // We save the grouped quantity (e.g., Qty: 3) as ONE row
+              stmt.run(saleId, item.name, item.barcode, item.qty, item.sale_price, (item.sale_price * item.qty));
 
-              // 3. Update Stock Automatically
+              // Update Stock
               db.run("UPDATE products SET stock_quantity = stock_quantity - ? WHERE barcode = ?", [item.qty, item.barcode]);
             });
 
-            itemStmt.finalize();
-            // #region agent log
-            fetch('http://127.0.0.1:7798/ingest/24f9dd96-04e6-403c-9bd9-caaa42908f40',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'86dc4e'},body:JSON.stringify({sessionId:'86dc4e',runId:'pre-fix',hypothesisId:'H1',location:'ipcHandler.js:159',message:'save_sale_completed',data:{saleId,itemCount:items.length,method},timestamp:Date.now()})}).catch(()=>{});
-            // #endregion
+            stmt.finalize();
             resolve({ success: true, id: saleId });
           }
         );
@@ -184,8 +171,9 @@ export const setupHandlers = () => {
     });
   });
 
+
   // 4. NEW HANDLER: Fetch items for the History Modal
-  // src/main/ipcHandler.js
+
   ipcMain.handle('get-sale-items', async (event, saleId) => {
     return new Promise((resolve) => {
       const query = "SELECT * FROM sale_items WHERE sale_id = ?";
@@ -201,7 +189,6 @@ export const setupHandlers = () => {
   });
 
 
-  // src/main/ipcHandler.js
   ipcMain.handle('get-sync-count', async () => {
     return new Promise((resolve) => {
       db.get("SELECT COUNT(*) as count FROM sales WHERE is_synced = 0", (err, row) => {
@@ -257,11 +244,11 @@ export const setupHandlers = () => {
   // Add this to allow saving settings from the Settings page 
   ipcMain.handle('save-setting', async (event, { key, value }) => {
     return new Promise(async (resolve) => {
-      // 1. Save Locally
+
       db.run("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", [key, value], async (err) => {
         if (err) return resolve({ success: false });
 
-        // 2. Push to Neon
+
         try {
           const client = await connectNeon();
           await client.query(
@@ -307,8 +294,7 @@ export const setupHandlers = () => {
   // Get details for a specific sale
   ipcMain.handle('get-sale-details', async (event, saleId) => {
     return new Promise((resolve, reject) => {
-      // This query assumes you have a way to link sales to items. 
-      // If you don't have a sale_items table yet, we should create one.
+
       db.all("SELECT * FROM sale_items WHERE sale_id = ?", [saleId], (err, rows) => {
         if (err) reject(err);
         resolve(rows || []);

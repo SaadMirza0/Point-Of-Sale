@@ -21,22 +21,16 @@ const mainWindow = new BrowserWindow({
 });
 
 
-  mainWindow.webContents.openDevTools();
 mainWindow.webContents.send('database-updated');
 
-  // SAFE CHECK: This prevents the "Not Defined" crash
-  let targetURL = 'http://localhost:5173'; // Default Vite Port
-
-  try {
-    if (typeof MAIN_WINDOW_VITE_DEV_SERVER_URL !== 'undefined' && MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-      targetURL = MAIN_WINDOW_VITE_DEV_SERVER_URL;
-    }
-  } catch (e) {
-    console.log("Using fallback port 5173...");
+  // SAFE CHECK: This prevents the "Not Defined" crash in production
+  if (typeof MAIN_WINDOW_VITE_DEV_SERVER_URL !== 'undefined' && MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+    console.log("Electron is loading Development Server:", MAIN_WINDOW_VITE_DEV_SERVER_URL);
+    mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+  } else {
+    console.log("Electron is loading Production Build");
+    mainWindow.loadFile(path.join(__dirname, '../renderer/main_window/index.html'));
   }
-
-  console.log("Electron is loading:", targetURL);
-  mainWindow.loadURL(targetURL);
 }
 
 

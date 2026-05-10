@@ -73,6 +73,15 @@ export default function WebSellPage() {
   const handleCheckout = async (method) => {
     if (cart.length === 0) return alert("Cart is empty!");
 
+    if (method === 'CASH') {
+      if (!received || received <= 0) {
+        if (grandTotal > 0) return alert("Please enter the received amount!");
+      }
+      if (received < grandTotal) {
+        return alert("Received amount is lower than the total amount!");
+      }
+    }
+
     const checkoutData = {
       total: grandTotal,
       received,
@@ -133,7 +142,7 @@ export default function WebSellPage() {
                 <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>shopping_cart</span>
                 Active Transaction
               </h3>
-              <span className="text-[10px] font-black bg-primary text-black px-3 py-1 rounded-full uppercase tracking-widest">
+              <span className="text-[10px] font-black bg-primary text-white px-3 py-1 rounded-full uppercase tracking-widest">
                 {cart.reduce((acc, i) => acc + i.qty, 0)} Items
               </span>
             </div>
@@ -232,7 +241,7 @@ export default function WebSellPage() {
             </div>
 
             {/* Grand Total Section */}
-            <div className="bg-primary p-6 rounded-xl text-black mb-8 shadow-lg shadow-primary/20">
+            <div className="bg-primary p-6 rounded-xl text-white mb-8 shadow-lg shadow-primary/20">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-[10px] font-black opacity-70 uppercase tracking-[0.2em]">Grand Total</span>
                 <span className="material-symbols-outlined opacity-50">payments</span>
@@ -267,7 +276,7 @@ export default function WebSellPage() {
             <div className="grid grid-cols-2 gap-4">
               <button
                 onClick={() => handleCheckout('CASH')}
-                className="flex flex-col items-center justify-center gap-3 py-8 bg-secondary text-black rounded-xl hover:brightness-95 transition-all relative overflow-hidden active:scale-95 shadow-lg shadow-secondary/20"
+                className="flex flex-col items-center justify-center gap-3 py-8 bg-secondary text-white rounded-xl hover:brightness-95 transition-all relative overflow-hidden active:scale-95 shadow-lg shadow-secondary/20"
               >
                 <span className="material-symbols-outlined text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>payments</span>
                 <span className="font-black text-sm uppercase tracking-widest text-center">F1: CASH PAY</span>
@@ -276,7 +285,7 @@ export default function WebSellPage() {
 
               <button
                 onClick={() => handleCheckout('ONLINE')}
-                className="flex flex-col items-center justify-center gap-3 py-8 bg-primary text-black rounded-xl hover:brightness-110 transition-all active:scale-95 shadow-lg shadow-primary/20"
+                className="flex flex-col items-center justify-center gap-3 py-8 bg-primary text-white rounded-xl hover:brightness-110 transition-all active:scale-95 shadow-lg shadow-primary/20"
               >
                 <span className="material-symbols-outlined text-4xl">contactless</span>
                 <span className="font-black text-sm uppercase tracking-widest text-center">F2: ONLINE</span>

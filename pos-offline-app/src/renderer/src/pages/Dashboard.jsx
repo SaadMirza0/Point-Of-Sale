@@ -79,7 +79,7 @@ const Dashboard = () => {
 
   return (
     <main className="min-h-screen bg-surface">
- 
+
 
       {/* Dashboard Canvas */}
       <div className="p-8 max-w-[1600px] mx-auto">
@@ -154,7 +154,7 @@ const Dashboard = () => {
                 <span className="material-symbols-outlined text-outline-variant text-3xl">group</span>
               </div>
               <h3 className="text-[42px] font-black text-primary leading-none">{stats.totalOrders}</h3>
-              <p className="text-body-md text-outline mt-3">Peak hours observed: 12:00 PM - 02:00 PM</p>
+
             </div>
             <div className="mt-8">
               <div className="flex justify-between items-end mb-2">
@@ -167,7 +167,7 @@ const Dashboard = () => {
                   style={{ width: `${Math.min(100, (stats.totalOrders / 200) * 100)}%` }}
                 ></div>
               </div>
-              <p className="text-label-sm text-outline mt-3 text-right font-medium italic">Target: 200 daily orders</p>
+
             </div>
           </div>
 

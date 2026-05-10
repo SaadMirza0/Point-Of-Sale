@@ -196,64 +196,90 @@ const Settings = () => {
               </div>
             </div>
             
-            <div className="overflow-hidden border border-outline-variant/50 rounded-2xl">
-              <table className="w-full text-left">
-                <thead className="bg-surface-container-low border-b border-outline-variant">
-                  <tr>
-                    <th className="px-6 py-4 text-label-sm text-outline uppercase tracking-widest font-black">Tax Parameter</th>
-                    <th className="px-6 py-4 text-label-sm text-outline uppercase tracking-widest font-black">Percentage</th>
-                    <th className="px-6 py-4 text-label-sm text-outline uppercase tracking-widest font-black">Scope</th>
-                    <th className="px-6 py-4 text-label-sm text-outline uppercase tracking-widest font-black text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-outline-variant/30 font-bold">
-                  <tr className="hover:bg-surface-container-low transition-colors group">
-                    <td className="px-6 py-5 text-primary-container">Standard GST</td>
-                    <td className="px-6 py-5">
-                      <div className="flex items-center gap-2">
-                        <input 
-                          type="number" 
-                          className="bg-white border border-outline-variant/50 rounded-lg px-3 py-1.5 w-20 text-center font-data-mono outline-none focus:border-secondary"
-                          value={settings.tax_rate}
-                          onChange={(e) => handleSettingChange('tax_rate', validateTaxRate(e.target.value))}
-                        />
-                        <span className="text-outline text-xs">%</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border border-secondary/20">Global Applied</span>
-                    </td>
-                    <td className="px-6 py-5 text-right">
-                      <button className="text-outline hover:text-primary-container transition-colors group-hover:scale-110 transform duration-300">
-                        <span className="material-symbols-outlined text-[20px]">tune</span>
-                      </button>
-                    </td>
-                  </tr>
-                  <tr className="hover:bg-surface-container-low transition-colors group">
-                    <td className="px-6 py-5 text-primary-container">Low Stock Threshold</td>
-                    <td className="px-6 py-5">
-                      <div className="flex items-center gap-2">
-                        <input 
-                          type="number" 
-                          className="bg-white border border-outline-variant/50 rounded-lg px-3 py-1.5 w-20 text-center font-data-mono outline-none focus:border-error text-error"
-                          value={settings.low_stock_threshold}
-                          onChange={(e) => handleSettingChange('low_stock_threshold', validateStockThreshold(e.target.value))}
-                        />
-                        <span className="text-outline text-xs">Units</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-5">
-                      <span className="bg-error-container/10 text-error px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border border-error/20">System Alert</span>
-                    </td>
-                    <td className="px-6 py-5 text-right">
-                      <button className="text-outline hover:text-primary-container transition-colors group-hover:scale-110 transform duration-300">
-                        <span className="material-symbols-outlined text-[20px]">notifications_active</span>
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+          <div className="w-full overflow-hidden border border-outline-variant/30 rounded-2xl bg-surface shadow-sm">
+  <div className="overflow-x-auto">
+    <table className="w-full text-left border-collapse min-w-[600px]">
+      <thead className="bg-surface-container-low/50 border-b border-outline-variant">
+        <tr>
+          <th className="px-6 py-4 text-[10px] text-outline uppercase tracking-[0.2em] font-black">Parameter Detail</th>
+          <th className="px-6 py-4 text-[10px] text-outline uppercase tracking-[0.2em] font-black">Value Configuration</th>
+          <th className="px-6 py-4 text-[10px] text-outline uppercase tracking-[0.2em] font-black">System Scope</th>
+          <th className="px-6 py-4 text-[10px] text-outline uppercase tracking-[0.2em] font-black text-right">Settings</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-outline-variant/20">
+        {/* Row 1: Standard GST */}
+        <tr className="hover:bg-primary-container/5 transition-all duration-200 group">
+          <td className="px-6 py-5">
+            <div className="flex flex-col gap-0.5">
+              <span className="text-primary font-black text-sm tracking-tight">Standard GST</span>
+              <span className="text-[10px] text-outline font-bold uppercase tracking-wider opacity-60">Sales Tax Rate</span>
             </div>
+          </td>
+          <td className="px-6 py-5">
+            <div className="flex items-center group/input w-fit">
+              <input 
+                type="number" 
+                className="bg-surface-container-highest/30 border border-outline-variant/50 rounded-l-xl px-4 py-2 w-24 text-sm font-data-mono outline-none focus:ring-2 focus:ring-secondary/20 focus:border-secondary transition-all"
+                value={settings.tax_rate}
+                onChange={(e) => handleSettingChange('tax_rate', validateTaxRate(e.target.value))}
+              />
+              <span className="bg-surface-container border border-l-0 border-outline-variant/50 rounded-r-xl px-3 py-2 text-outline text-[11px] font-black tracking-tighter">
+                %
+              </span>
+            </div>
+          </td>
+          <td className="px-6 py-5">
+            <span className="inline-flex items-center gap-2 bg-secondary/10 text-secondary px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border border-secondary/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
+              Global Applied
+            </span>
+          </td>
+          <td className="px-6 py-5 text-right">
+            <button className="p-2 hover:bg-surface-container-high rounded-xl transition-all text-outline hover:text-primary active:scale-90">
+              <svg xmlns="http://w3.org" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </td>
+        </tr>
+
+        {/* Row 2: Low Stock Threshold */}
+        <tr className="hover:bg-primary-container/5 transition-all duration-200 group">
+          <td className="px-6 py-5">
+            <div className="flex flex-col gap-0.5">
+              <span className="text-primary font-black text-sm tracking-tight">Low Stock Threshold</span>
+              <span className="text-[10px] text-outline font-bold uppercase tracking-wider opacity-60">Inventory Warning</span>
+            </div>
+          </td>
+          <td className="px-6 py-5">
+            <div className="flex items-center group/input w-fit">
+              <input 
+                type="number" 
+                className="bg-surface-container-highest/30 border border-outline-variant/50 rounded-l-xl px-4 py-2 w-24 text-sm font-data-mono outline-none focus:ring-2 focus:ring-error/20 focus:border-error text-error transition-all"
+                value={settings.low_stock_threshold}
+                onChange={(e) => handleSettingChange('low_stock_threshold', validateStockThreshold(e.target.value))}
+              />
+              <span className="bg-surface-container border border-l-0 border-outline-variant/50 rounded-r-xl px-3 py-2 text-outline text-[11px] font-black tracking-tighter">
+                Units
+              </span>
+            </div>
+          </td>
+          <td className="px-6 py-5">
+            <span className="inline-flex items-center gap-2 bg-error-container/10 text-error px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border border-error/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-error" />
+              System Alert
+            </span>
+          </td>
+          <td className="px-6 py-5 text-right">
+            <button className="p-2 hover:bg-surface-container-high rounded-xl transition-all text-outline hover:text-primary active:scale-90">
+              <svg xmlns="http://w3.org" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
           </div>
         </section>
 
@@ -286,7 +312,7 @@ const Settings = () => {
               </div>
               <div>
                 <h3 className="text-headline-md text-primary-container uppercase tracking-tight font-black leading-none">Hardware</h3>
-                <p className="text-[10px] text-outline font-black uppercase tracking-widest mt-1">Peripheral Mgmt</p>
+              
               </div>
             </div>
 
@@ -314,7 +340,7 @@ const Settings = () => {
             </div>
           </div>
 
-          {/* UI Performance Card */}
+          
        
         </aside>
       </div>
